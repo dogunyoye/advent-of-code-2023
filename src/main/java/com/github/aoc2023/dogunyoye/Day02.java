@@ -5,10 +5,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class Day02 {
 
-    private record Round (int blueCubes, int redCubes, int greenCubes){ }
+    private record Round (int blueCubes, int redCubes, int greenCubes) { }
 
     private record Game (int id, List<Round> rounds) { }
 
@@ -39,7 +40,7 @@ public class Day02 {
                 final int numberOfCubes = Integer.parseInt(cubeParts[0]);
                 final String cubeColour = cubeParts[1];
                 
-                switch(cubeColour) {
+                switch (cubeColour) {
                     case "blue":
                         blueCubes = numberOfCubes;
                         break;
@@ -63,8 +64,8 @@ public class Day02 {
     private List<Game> createGames(List<String> gamesList) {
         final List<Game> games = new ArrayList<>();
 
-        for (final String g : gamesList) {
-            games.add(createGame(g));
+        for (final String game : gamesList) {
+            games.add(createGame(game));
         }
 
         return games;
@@ -73,27 +74,22 @@ public class Day02 {
     public int sumCandidateGameIds(List<String> gamesList) {
         final List<Game> games = createGames(gamesList);
 
-        int sum = 0;
-        for (final Game game : games) {
-            boolean candidateGame = false;
-            for (final Round round : game.rounds()) {
-                if (round.blueCubes() <= BLUE_CUBE_LIMIT &&
-                    round.greenCubes() <= GREEN_CUBE_LIMIT &&
-                    round.redCubes() <= RED_CUBE_LIMIT) {
-                    candidateGame = true;
-                    continue;
+        return
+            games.stream().filter((game) -> {
+                for (final Round round : game.rounds()) {
+                    if (round.blueCubes() <= BLUE_CUBE_LIMIT &&
+                        round.greenCubes() <= GREEN_CUBE_LIMIT &&
+                        round.redCubes() <= RED_CUBE_LIMIT) {
+                        continue;
+                    }
+
+                    return false;
                 }
 
-                candidateGame = false;
-                break;
-            }
-
-            if (candidateGame) {
-                sum += game.id();
-            }
-        }
-
-        return sum;
+                return true;
+            })
+            .flatMapToInt(game -> IntStream.of(game.id()))
+            .sum();
     }
 
     public int sumMaxCubesPerGame(List<String> gamesList) {
@@ -101,17 +97,14 @@ public class Day02 {
         int sum = 0;
 
         for (final Game game : games) {
-            int maxRedCubes = Integer.MIN_VALUE;
-            int maxGreenCubes = Integer.MIN_VALUE;
-            int maxBlueCubes = Integer.MIN_VALUE;
+            final int maxRedCubes =
+                game.rounds().stream().map(Round::redCubes).max(Integer::compare).get();
+            final int maxGreenCubes =
+                game.rounds().stream().map(Round::greenCubes).max(Integer::compare).get();
+            final int maxBlueCubes =
+                game.rounds().stream().map(Round::blueCubes).max(Integer::compare).get();
 
-            for (final Round round : game.rounds()) {
-                maxRedCubes = Math.max(maxRedCubes, round.redCubes());
-                maxGreenCubes = Math.max(maxGreenCubes, round.greenCubes());
-                maxBlueCubes = Math.max(maxBlueCubes, round.blueCubes());
-            }
-
-            sum += (maxRedCubes * maxGreenCubes * maxBlueCubes);
+            sum += maxRedCubes * maxGreenCubes * maxBlueCubes;
         }
 
         return sum;
