@@ -24,7 +24,7 @@ public class Day01 {
         map.put("nine", '9');
     }
 
-    private String normalisedValue(String line) {
+    private static String normalisedValue(String line) {
         final Map<Integer, Character> indexToValueMap = new HashMap<>();
 
         for (int i = 0; i < line.length(); i++) {
@@ -49,22 +49,18 @@ public class Day01 {
     }
 
     public int sumOfAllCalibrationValues(List<String> lines) {
-        int sum = 0;
-        for (final String line : lines) {
-            final String onlyDigits = line.replaceAll("[a-z]", "");
-            final String digits = String.format("%c%c", onlyDigits.charAt(0), onlyDigits.charAt(onlyDigits.length()-1));
-            sum += Integer.parseInt(digits);
-        }
-        return sum;
+        return lines.stream()
+            .map(line -> line.replaceAll("[a-z]", ""))
+            .map(line -> String.format("%c%c", line.charAt(0), line.charAt(line.length()-1)))
+            .mapToInt(digits -> Integer.parseInt(digits))
+            .sum();
     }
 
     public int sumOfAllRevisedCalibrationValues(List<String> lines) {
-        int sum = 0;
-        for (final String line : lines) {
-            final String digits = normalisedValue(line);
-            sum += Integer.parseInt(digits);
-        }
-        return sum;
+        return lines.stream()
+            .map(Day01::normalisedValue)
+            .mapToInt(digits -> Integer.parseInt(digits))
+            .sum();
     }
     
     public static void main(String[] args) throws IOException {
