@@ -75,14 +75,17 @@ public class Day02 {
 
         int sum = 0;
         for (final Game game : games) {
-            boolean candidateGame = true;
+            boolean candidateGame = false;
             for (final Round round : game.rounds()) {
-                if (round.blueCubes() > BLUE_CUBE_LIMIT ||
-                    round.greenCubes() > GREEN_CUBE_LIMIT ||
-                    round.redCubes() > RED_CUBE_LIMIT) {
-                    candidateGame = false;
-                    break;
+                if (round.blueCubes() <= BLUE_CUBE_LIMIT &&
+                    round.greenCubes() <= GREEN_CUBE_LIMIT &&
+                    round.redCubes() <= RED_CUBE_LIMIT) {
+                    candidateGame = true;
+                    continue;
                 }
+
+                candidateGame = false;
+                break;
             }
 
             if (candidateGame) {
