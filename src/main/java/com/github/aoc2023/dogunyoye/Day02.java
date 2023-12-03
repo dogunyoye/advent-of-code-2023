@@ -64,9 +64,9 @@ public class Day02 {
     private List<Game> createGames(List<String> gamesList) {
         final List<Game> games = new ArrayList<>();
 
-        for (final String game : gamesList) {
+        gamesList.stream().forEach((game) -> {
             games.add(createGame(game));
-        }
+        });
 
         return games;
     }
@@ -94,20 +94,20 @@ public class Day02 {
 
     public int sumMaxCubesPerGame(List<String> gamesList) {
         final List<Game> games = createGames(gamesList);
-        int sum = 0;
 
-        for (final Game game : games) {
-            final int maxRedCubes =
-                game.rounds().stream().map(Round::redCubes).max(Integer::compare).get();
-            final int maxGreenCubes =
-                game.rounds().stream().map(Round::greenCubes).max(Integer::compare).get();
-            final int maxBlueCubes =
-                game.rounds().stream().map(Round::blueCubes).max(Integer::compare).get();
+        return
+            games.stream().map((game) -> {
+                final int maxRedCubes =
+                    game.rounds().stream().map(Round::redCubes).max(Integer::compare).get();
+                final int maxGreenCubes =
+                    game.rounds().stream().map(Round::greenCubes).max(Integer::compare).get();
+                final int maxBlueCubes =
+                    game.rounds().stream().map(Round::blueCubes).max(Integer::compare).get();
 
-            sum += maxRedCubes * maxGreenCubes * maxBlueCubes;
-        }
-
-        return sum;
+                return maxRedCubes * maxGreenCubes * maxBlueCubes;
+            })
+            .flatMapToInt(IntStream::of)
+            .sum();
     }
 
     public static void main(String[] args) throws IOException {
