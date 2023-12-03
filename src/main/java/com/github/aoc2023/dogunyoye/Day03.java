@@ -28,10 +28,8 @@ public class Day03 {
             return
                 neighbours.stream()
                     .filter((pos) -> {
-                        if (pos.i < 0 || pos.i > depth || pos.j < 0 || pos.j > length) {
-                            return false;
-                        }
-                        return true;
+                        // filter out any out of bounds positions
+                        return pos.i >= 0 && pos.i < depth && pos.j >= 0 && pos.j < length;  
                     }).toList();
         }
     }
