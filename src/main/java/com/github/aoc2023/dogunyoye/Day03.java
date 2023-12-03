@@ -36,14 +36,13 @@ public class Day03 {
         }
     }
 
-    private record EngineSchematic (int length, int depth, char[][] schematic, List<Position> symbolPositions, List<Position> gearPositions) { }
+    private record EngineSchematic (int length, int depth, char[][] schematic, List<Position> symbolPositions) { }
 
     private EngineSchematic buildEngineSchematic(List<String> schematic) {
         final int mapLength = schematic.get(0).length();
         final int mapDepth = schematic.size();
         final char[][] engineSchematic = new char[mapDepth][mapLength];
         final List<Position> symbolPositions = new ArrayList<>();
-        final List<Position> gearPositions = new ArrayList<>();
         
         for (int i = 0; i < mapDepth; i++) {
             for (int j = 0; j < mapLength; j++) {
@@ -52,14 +51,11 @@ public class Day03 {
 
                 if ('.' != c && !Character.isDigit(c)) {
                     symbolPositions.add(new Position(i, j));
-                    if ('*' == c) {
-                        gearPositions.add(new Position(i, j));
-                    }
                 }
             }
         }
 
-        return new EngineSchematic(mapLength, mapDepth, engineSchematic, symbolPositions, gearPositions);
+        return new EngineSchematic(mapLength, mapDepth, engineSchematic, symbolPositions);
     }
 
     private static int completeNumber(EngineSchematic engineSchematic, Position pos, Set<Position> mapped) {
@@ -116,17 +112,19 @@ public class Day03 {
         final int mapLength = engineSchematic.length();
 
         int sum = 0;
-        for (final Position symPos : engineSchematic.gearPositions()) {
-            final List<Position> neighbours = symPos.getNeighbours(mapLength, mapDepth);
-            final Set<Position> mapped = new HashSet<>();
-            final List<Integer> numbers = neighbours.stream()
-                    .filter(nPos -> Character.isDigit(engineSchematic.schematic()[nPos.i()][nPos.j()]))
-                    .map(pos -> Day03.completeNumber(engineSchematic, pos, mapped))
-                    .filter(number -> number != 0)
-                    .toList();
-            
-            if (numbers.size() == 2) {
-                sum += numbers.get(0) * numbers.get(1);
+        for (final Position symPos : engineSchematic.symbolPositions()) {
+            if (engineSchematic.schematic()[symPos.i()][symPos.j()] == '*') {
+                final List<Position> neighbours = symPos.getNeighbours(mapLength, mapDepth);
+                final Set<Position> mapped = new HashSet<>();
+                final List<Integer> numbers = neighbours.stream()
+                        .filter(nPos -> Character.isDigit(engineSchematic.schematic()[nPos.i()][nPos.j()]))
+                        .map(pos -> Day03.completeNumber(engineSchematic, pos, mapped))
+                        .filter(number -> number != 0)
+                        .toList();
+                
+                if (numbers.size() == 2) {
+                    sum += numbers.get(0) * numbers.get(1);
+                }
             }
         }
 
