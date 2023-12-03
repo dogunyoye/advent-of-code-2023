@@ -88,7 +88,7 @@ public class Day02 {
 
                 return true;
             })
-            .flatMapToInt(game -> IntStream.of(game.id()))
+            .mapToInt(game -> game.id())
             .sum();
     }
 
@@ -106,7 +106,7 @@ public class Day02 {
 
                 return maxRedCubes * maxGreenCubes * maxBlueCubes;
             })
-            .flatMapToInt(IntStream::of)
+            .mapToInt(value -> value)
             .sum();
     }
 
