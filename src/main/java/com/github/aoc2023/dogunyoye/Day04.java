@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Day04 {
 
@@ -66,15 +65,17 @@ public class Day04 {
         return sum;
     }
 
-    public void processCard(int cardId, Map<Integer, List<Integer>> cardsMap, AtomicInteger counter) {
+    public int processCard(int cardId, Map<Integer, List<Integer>> cardsMap) {
         if (cardsMap.get(cardId).size() == 0) {
-            return;
+            return 0;
         }
 
+        int result = 0;
         for (final int copy : cardsMap.get(cardId)) {
-            processCard(copy, cardsMap, counter);
-            counter.incrementAndGet();
+            result += processCard(copy, cardsMap) + 1;
         }
+
+        return result;
     }
 
     public int totalScratchCards(List<String> cards) {
@@ -96,9 +97,7 @@ public class Day04 {
 
         int result = scratchCards.size();
         for (final ScratchCard sc : scratchCards) {
-            final AtomicInteger counter = new AtomicInteger(0);
-            processCard(sc.cardNumber(), cardCopiesMap, counter);
-            result += counter.get();
+            result += processCard(sc.cardNumber(), cardCopiesMap);
         }
 
         return result;
