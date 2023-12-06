@@ -130,23 +130,20 @@ public class Day05 {
                 final long sourceStart = range.sourceStart();
                 final long sourceLimit = sourceStart + range.range();
 
-                if (value > sourceLimit || value < sourceStart) {
-                    // not within the source range, so skip
-                    continue;
+                if (value >= sourceStart && value < sourceLimit) {
+                    final long toAdd = Math.abs(value - range.sourceStart());
+
+                    final long destinationStart = range.destinationStart();
+                    final long destinationLimit = destinationStart + range.range();
+
+                    final long newValue = destinationStart + toAdd;
+
+                    if (newValue >= destinationStart && newValue < destinationLimit) {
+                        value = newValue;
+                    }
+
+                    break;
                 }
-
-                final long toAdd = Math.abs(value - range.sourceStart());
-
-                final long destinationStart = range.destinationStart();
-                final long destinationLimit = destinationStart + range.range();
-
-                final long newValue = destinationStart + toAdd;
-
-                if (newValue >= destinationStart && newValue < destinationLimit) {
-                    value = newValue;
-                }
-
-                break;
             }
         }
 
@@ -173,7 +170,15 @@ public class Day05 {
             final long seed = seeds.get(i);
             final long nextSeed = seeds.get(i+1);
 
-            min = Math.min(LongStream.range(seed, seed + nextSeed).parallel().map(s -> processSeed(s, farmInfo.recipes())).min().getAsLong(), min);
+            final long location =
+                LongStream
+                    .range(seed, seed + nextSeed)
+                    .parallel()
+                    .map(s -> processSeed(s, farmInfo.recipes()))
+                    .min()
+                    .getAsLong();
+
+            min = Math.min(location, min);
         }
 
         return min;
