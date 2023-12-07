@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.LongStream;
 
 public class Day06 {
 
@@ -36,22 +37,20 @@ public class Day06 {
         return races;
     }
 
-    private static List<Long> findRecordBreakers(Race race) {
+    private static Long findRecordBreakers(Race race) {
         final long time = race.time();
         final long distance = race.recordDistance();
 
-        final List<Long> recordBreakers = new ArrayList<>();
-
-        // distance = speed * time
-        for (long i = 1; i < time; i++) {
-            final long remainingTime = time - i;
-            final long newDistance = i * remainingTime;
-            if (newDistance > distance) {
-                recordBreakers.add(i);
-            }
-        }
-
-        return recordBreakers;
+        return
+            LongStream
+                .range(1, time)
+                .parallel()
+                .filter((s) -> {
+                    final long remainingTime = time - s;
+                    final long newDistance = s * remainingTime;
+                    return newDistance > distance;
+                })
+                .count();
     }
 
     public int calculateMarginOfError(List<String> data) {
@@ -59,7 +58,7 @@ public class Day06 {
         int result = 1;
 
         for (final Race race : races) {
-            result *= findRecordBreakers(race).size();
+            result *= findRecordBreakers(race);
         }
 
         return result;
@@ -76,7 +75,7 @@ public class Day06 {
         }
 
         final Race race = new Race(Long.parseLong(timeString), Long.parseLong(distanceString));
-        return findRecordBreakers(race).size();
+        return findRecordBreakers(race);
     }
     
     public static void main(String[] args) throws IOException {
