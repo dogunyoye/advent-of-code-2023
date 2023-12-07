@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.LongStream;
 
@@ -53,15 +54,9 @@ public class Day06 {
                 .count();
     }
 
-    public int calculateMarginOfError(List<String> data) {
+    public long calculateMarginOfError(List<String> data) {
         final Race[] races = createRaces(data);
-        int result = 1;
-
-        for (final Race race : races) {
-            result *= findRecordBreakers(race);
-        }
-
-        return result;
+        return Arrays.stream(races).map(Day06::findRecordBreakers).reduce((x,y) -> x * y).get();
     }
 
     public long calculateMarginOfErrorPart2(List<String> data) {
