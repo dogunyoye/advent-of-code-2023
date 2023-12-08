@@ -32,10 +32,10 @@ public class Day07 {
     private record Pair<K, V>(K first, V second) { }
 
     private class Hand implements Comparable<Hand> {
-        private char[] cards;
+        private final char[] cards;
         private final int bid;
         private HandType type;
-        private char strongestCard;
+        private final char strongestCard;
         private final List<Character> order;
 
         private Hand(char[] cards, int bid, HandType type, char strongestCard, List<Character> order) {
@@ -84,7 +84,6 @@ public class Day07 {
         public String toString() {
             return String.format("Hand: %s", new String(this.cards));
         }
-        
     }
 
     /*
