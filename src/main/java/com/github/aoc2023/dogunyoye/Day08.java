@@ -80,7 +80,7 @@ public class Day08 {
                 .toList();
         
         final Map<String, String> locationMap = new HashMap<>();
-        final List<Long> lcms = new ArrayList<>();
+        final List<Long> values = new ArrayList<>();
 
         for (final String s : nodes) {
             locationMap.put(s, new String(s));
@@ -96,7 +96,7 @@ public class Day08 {
                 final Pair<String, String> directions = network.directions().get(e.getValue());
                 final String nextStep = 'L' == direction ? directions.left() : directions.right();
                 if (nextStep.endsWith("Z")) {
-                    lcms.add((steps + 1));
+                    values.add((steps + 1));
                     toRemove.add(e.getKey());
                 } else {
                     locationMap.put(e.getKey(), nextStep);
@@ -110,7 +110,7 @@ public class Day08 {
             steps++;
         }
 
-        return lcm(lcms);
+        return lcm(values);
     }
     
     public static void main(String[] args) throws IOException {
