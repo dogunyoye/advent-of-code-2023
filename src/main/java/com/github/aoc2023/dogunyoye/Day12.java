@@ -44,11 +44,7 @@ public class Day12 {
             }
 
             final String completed = sb.toString().replaceAll("\\?", ".");
-            if (completed.matches(cr.regex())) {
-                return 1;
-            }
-
-            return 0;
+            return completed.matches(cr.regex()) ? 1 : 0;
         }
 
         int matches = 0;
