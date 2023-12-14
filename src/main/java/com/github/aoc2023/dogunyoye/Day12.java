@@ -11,14 +11,28 @@ public class Day12 {
 
     private record ConditionRecord(String record, int[] sequence, String regex) { }
 
-    private List<ConditionRecord> createConditionRecords(List<String> data) {
+    private List<ConditionRecord> createConditionRecords(List<String> data, int repeat) {
         final List<ConditionRecord> conditionRecords = new ArrayList<>();
         for (final String line : data) {
             final String[] parts = line.split(" ");
-            final String record = parts[0];
+            String record = parts[0];
+            if (repeat > 0) {
+                record += "?";
+                record = record.repeat(repeat);
+                // chop off trailing '?'
+                record = record.substring(0, record.length() - 1);
+            }
+
+            String damaged = parts[1];
+            if (repeat > 0) {
+                damaged += ",";
+                damaged = damaged.repeat(repeat);
+                // chop off trailing ','
+                damaged = damaged.substring(0, damaged.length() - 1);
+            }
 
             final int[] sequence =
-                Arrays.stream(parts[1].split(",")).mapToInt((s) -> Integer.parseInt(s)).toArray();
+                Arrays.stream(damaged.split(",")).mapToInt((s) -> Integer.parseInt(s)).toArray();
 
             String regex = "\\.*";
 
@@ -79,12 +93,13 @@ public class Day12 {
     }
 
     public int sumAllValidArrangements(List<String> data) {
-        final List<ConditionRecord> conditionRecords = createConditionRecords(data);
+        final List<ConditionRecord> conditionRecords = createConditionRecords(data, 0);
         return conditionRecords.stream().map(Day12::findValidCombinations).mapToInt((m) -> m).sum();
     }
     
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day12.txt"));
-        System.out.println("Part 1: " + new Day12().sumAllValidArrangements(data));
+        //System.out.println("Part 1: " + new Day12().sumAllValidArrangements(data));
+        new Day12().createConditionRecords(data, 5);
     }
 }
