@@ -5,11 +5,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Day12 {
 
     private record ConditionRecord(String record, int[] sequence, String regex) { }
+
+    private record MemoKey(int idx, int num) { }
 
     private List<ConditionRecord> createConditionRecords(List<String> data, int repeat) {
         final List<ConditionRecord> conditionRecords = new ArrayList<>();
@@ -70,6 +74,10 @@ public class Day12 {
         return matches;
     }
 
+    /*
+     * Slow solution which generates all possible combinations and tests them
+     * against a regular expression
+     */
     private static int findValidCombinations(ConditionRecord cr) {
         final long workingCount = cr.record().chars().filter((c) -> c == '#').count();
         final long total = Arrays.stream(cr.sequence()).sum();
@@ -92,14 +100,90 @@ public class Day12 {
         return recurseCombination(cr, temp, data, 0, data.length - 1, 0, remaining);
     }
 
+    private static boolean canFill(String record, int start, int end) {
+        if (end > record.length()) {
+            return false;
+        }
+
+        for (int i = start; i < end; i++) {
+            if (record.charAt(i) == '.') {
+                return false;
+            }
+        }
+
+        if (end < record.length() && record.charAt(end) == '#') {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Optimised solution which recursively builds combinations, bailing early if the combination
+     * breaks the ordering constraint.
+     * 
+     * `memo` is used to reduce the amount of duplicate work whilst walking the recursion tree
+     * 
+     * Solution inspired from: https://www.reddit.com/r/adventofcode/comments/18hg99r/2023_day_12_simple_tutorial_with_memoization/
+     */
+    private static long findValidCombinationsOptimised(String record, int[] damaged, Map<MemoKey, Long> memo, int i) {
+        if (damaged.length == 0) {
+            if (i < record.length() && record.indexOf("#", i) > -1) {
+                return 0;
+            }
+
+            return 1; 
+        }
+
+        for (; i < record.length(); i++) {
+            if (record.charAt(i) == '#' || record.charAt(i) == '?') {
+                break;
+            }
+        }
+
+        if (i >= record.length()) {
+            return 0;
+        }
+
+        final MemoKey key = new MemoKey(i, damaged.length);
+        if (memo.containsKey(key)) {
+            return memo.get(key);
+        }
+
+        long result = 0;
+        if (canFill(record, i, i + damaged[0])) {
+            result += findValidCombinationsOptimised(record, Arrays.copyOfRange(damaged, 1, damaged.length), memo, (i + damaged[0] + 1));
+        }
+
+        if (record.charAt(i) == '?') {
+            result += findValidCombinationsOptimised(record, damaged, memo, i+1);
+        }
+
+        memo.put(key, result);
+        return result;
+    }
+
     public int sumAllValidArrangements(List<String> data) {
         final List<ConditionRecord> conditionRecords = createConditionRecords(data, 0);
         return conditionRecords.stream().map(Day12::findValidCombinations).mapToInt((m) -> m).sum();
     }
+
+    public long sumAllValidArrangementsUnfolded(List<String> data) {
+        long sum = 0;
+        final List<ConditionRecord> conditionRecords = createConditionRecords(data, 5);
+        final Map<MemoKey, Long> memo = new HashMap<>();
+
+        for (final ConditionRecord cr : conditionRecords) {
+            sum += findValidCombinationsOptimised(cr.record(), cr.sequence(), memo, 0);
+            memo.clear();
+        }
+
+        return sum;
+    }
     
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day12.txt"));
-        //System.out.println("Part 1: " + new Day12().sumAllValidArrangements(data));
-        new Day12().createConditionRecords(data, 5);
+        System.out.println("Part 1: " + new Day12().sumAllValidArrangements(data));
+        System.out.println("Part 2: " + new Day12().sumAllValidArrangementsUnfolded(data));
     }
 }
