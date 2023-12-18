@@ -20,7 +20,7 @@ public class Day13 {
 
     private record Replacement(int idx, String replacement) { }
 
-    private static Map<Integer, String> reflectionPoints = new HashMap<>();
+    private static final Map<Integer, String> REFLECTION_POINTS = new HashMap<>();
 
     private Note createNoteFromRows(int id, List<String> data, boolean cacheValue) {
         final int lineLength = data.get(0).length();
@@ -123,14 +123,16 @@ public class Day13 {
     }
 
     private static int checkSymmetry(Note n, List<String> note, boolean isVertical) {
-        final String value = reflectionPoints.get(n.id());
+        final String value = REFLECTION_POINTS.get(n.id());
         for (int i = 0; i < note.size() - 1; i++) {
             final String current = note.get(i);
-            final String next = note.get(i+1);
+            final String next = note.get(i + 1);
+            final String reflectionLine = isVertical ? "x=" + i : "y=" + i;
 
             if (value != null) {
-                final String refLine = isVertical ? "x=" + i : "y=" + i;
-                if (value.equals(refLine)) {
+                // for part 2, skip this reflection line
+                // if it is the previously kn
+                if (value.equals(reflectionLine)) {
                     continue;
                 }
             }
@@ -154,11 +156,7 @@ public class Day13 {
 
                     if (isReflectionPoint) {
                         if (n.cache()) {
-                            if (isVertical) {
-                                reflectionPoints.put(n.id(), "x=" + i);
-                            } else {
-                                reflectionPoints.put(n.id(), "y=" + i);
-                            }
+                            REFLECTION_POINTS.put(n.id(), reflectionLine);
                         }
                         return i + 1;
                     }
@@ -192,7 +190,7 @@ public class Day13 {
         long leftColumns = 0;
         long rowsAbove = 0;
 
-        final Set<Note> completed = new HashSet<>();
+        final Set<Note> found = new HashSet<>();
 
         for (final Entry<Note, List<Replacement>> e : rowReplacements.entrySet()) {
             final Note note = e.getKey();
@@ -212,13 +210,13 @@ public class Day13 {
 
                 if (l != 0) {
                     leftColumns += l;
-                    completed.add(note);
+                    found.add(note);
                     break;
                 }
 
                 if (a != 0) {
                     rowsAbove += a;
-                    completed.add(note);
+                    found.add(note);
                     break;
                 }
             }
@@ -227,7 +225,7 @@ public class Day13 {
         for (final Entry<Note, List<Replacement>> e : columnReplacements.entrySet()) {
 
             final Note note = e.getKey();
-            if (completed.contains(note)) {
+            if (found.contains(note)) {
                 // skip
                 continue;
             }
@@ -252,13 +250,13 @@ public class Day13 {
 
                 if (l != 0) {
                     leftColumns += l;
-                    completed.add(note);
+                    found.add(note);
                     break;
                 }
 
                 if (a != 0) {
                     rowsAbove += a;
-                    completed.add(note);
+                    found.add(note);
                     break;
                 }
             }
