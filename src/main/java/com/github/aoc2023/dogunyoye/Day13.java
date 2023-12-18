@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,13 +16,13 @@ import java.util.stream.Collectors;
 
 public class Day13 {
 
-    private record Note(int id, List<String> rows, List<String> columns) { }
+    private record Note(int id, List<String> rows, List<String> columns, boolean cache) { }
 
     private record Replacement(int idx, String replacement) { }
 
-    private static Map<Integer, Integer> reflectionPoints = new HashMap<>();
+    private static Map<Integer, String> reflectionPoints = new HashMap<>();
 
-    private Note createNoteFromRows(int id, List<String> data) {
+    private Note createNoteFromRows(int id, List<String> data, boolean cacheValue) {
         final int lineLength = data.get(0).length();
         final List<String> columns = new ArrayList<>();
         for (int i = 0; i < lineLength; i++) {
@@ -34,11 +33,13 @@ public class Day13 {
             columns.add(column);
         }
 
-        return new Note(id, new ArrayList<>(data), columns);
+        return new Note(id, new ArrayList<>(data), columns, cacheValue);
     }
 
-    private List<Note> createNotes(List<String> data) {
+    private List<Note> createNotes(List<String> data, boolean cacheValue) {
         final List<Note> notes = new ArrayList<>();
+
+        // https://stackoverflow.com/a/62670286/2981152
         final Collection<List<String>> n =
             Arrays.stream(
                 data.stream()
@@ -49,7 +50,7 @@ public class Day13 {
 
         int id = 0;
         for (final List<String> rows : n) {
-            notes.add(createNoteFromRows(id, rows));
+            notes.add(createNoteFromRows(id, rows, cacheValue));
             ++id;
         }
 
@@ -121,14 +122,17 @@ public class Day13 {
         return candidatesMap;
     }
 
-    private static int checkSymmetry(Note n, List<String> note) {
-        final Integer value = reflectionPoints.get(n.id());
+    private static int checkSymmetry(Note n, List<String> note, boolean isVertical) {
+        final String value = reflectionPoints.get(n.id());
         for (int i = 0; i < note.size() - 1; i++) {
             final String current = note.get(i);
             final String next = note.get(i+1);
 
-            if(value != null && value == i) {
-                continue;
+            if (value != null) {
+                final String refLine = isVertical ? "x=" + i : "y=" + i;
+                if (value.equals(refLine)) {
+                    continue;
+                }
             }
 
             if (current.equals(next)) {
@@ -149,7 +153,13 @@ public class Day13 {
                     }
 
                     if (isReflectionPoint) {
-                        reflectionPoints.put(n.id(), i);
+                        if (n.cache()) {
+                            if (isVertical) {
+                                reflectionPoints.put(n.id(), "x=" + i);
+                            } else {
+                                reflectionPoints.put(n.id(), "y=" + i);
+                            }
+                        }
                         return i + 1;
                     }
             }
@@ -159,39 +169,28 @@ public class Day13 {
     }
 
     private static int checkVerticalSymmetry(Note note) {
-        return checkSymmetry(note, note.columns());
+        return checkSymmetry(note, note.columns(), true);
     }
 
     private static int checkHorizontalSymmetry(Note note) {
-        return checkSymmetry(note, note.rows());
+        return checkSymmetry(note, note.rows(), false);
     }
 
     public long summariseAllNotes(List<String> data) {
-        final List<Note> notes = createNotes(data);
+        final List<Note> notes = createNotes(data, true);
         final long leftColumns = notes.stream().mapToInt(Day13::checkVerticalSymmetry).sum();
         final long rowsAbove = notes.stream().mapToInt(Day13::checkHorizontalSymmetry).sum();
 
         return leftColumns + (100 * rowsAbove);
     }
 
-    /*
-     * ..#.##.#.###.#.#.
-..#.####.###.#.#.
-#####......##.##.
-###...#.#.#.....#
-####..##.#####.#.
-....#..#.#.#...##
-#######.......##.
-     */
     public long summariseAllNotesPart2(List<String> data) {
-        final List<Note> notes = createNotes(data);
+        final List<Note> notes = createNotes(data, true);
         final Map<Note, List<Replacement>> rowReplacements = findCandidates(notes, true);
         final Map<Note, List<Replacement>> columnReplacements = findCandidates(notes, false);
 
         long leftColumns = 0;
         long rowsAbove = 0;
-
-        System.out.println(reflectionPoints.keySet().size());
 
         final Set<Note> completed = new HashSet<>();
 
@@ -199,24 +198,28 @@ public class Day13 {
             final Note note = e.getKey();
             final List<Replacement> replacements = e.getValue();
 
-            final int value = reflectionPoints.get(note.id());
-
             for (final Replacement r : replacements) {
                 final List<String> newRow = new ArrayList<String>(List.copyOf(note.rows()));
                 newRow.set(r.idx(), r.replacement());
 
-                final Note newNote = createNoteFromRows(note.id() + 1000, newRow);
+                final Note newNote = createNoteFromRows(note.id(), newRow, false);
                 int l = checkVerticalSymmetry(newNote);
                 int a = checkHorizontalSymmetry(newNote);
 
-                leftColumns += l;
-                rowsAbove += a;
+                if (l > 0 && a > 0) {
+                    throw new RuntimeException("Multiple reflection points");
+                }
 
-                if (reflectionPoints.get(newNote.id()) != null) {
-                    int v = reflectionPoints.get(newNote.id());
-                    if (v != value) {
-                        completed.add(note);
-                    }
+                if (l != 0) {
+                    leftColumns += l;
+                    completed.add(note);
+                    break;
+                }
+
+                if (a != 0) {
+                    rowsAbove += a;
+                    completed.add(note);
+                    break;
                 }
             }
         }
@@ -229,7 +232,6 @@ public class Day13 {
                 continue;
             }
 
-            final int value = reflectionPoints.get(note.id());
             final List<Replacement> replacements = e.getValue();
 
             for (final Replacement r : replacements) {
@@ -240,36 +242,27 @@ public class Day13 {
                     newRow.set(i, sb.toString());
                 }
 
-                final Note newNote = createNoteFromRows(note.id() + 2000, newRow);
+                final Note newNote = createNoteFromRows(note.id(), newRow, false);
                 int l = checkVerticalSymmetry(newNote);
                 int a = checkHorizontalSymmetry(newNote);
 
-                leftColumns += l;
-                rowsAbove += a;
+                if (l > 0 && a > 0) {
+                    throw new RuntimeException("Multiple reflection points");
+                }
 
-                if (reflectionPoints.get(newNote.id()) != null) {
-                    int v = reflectionPoints.get(newNote.id());
-                    if (v != value) {
-                        completed.add(note);
-                    }
+                if (l != 0) {
+                    leftColumns += l;
+                    completed.add(note);
+                    break;
+                }
+
+                if (a != 0) {
+                    rowsAbove += a;
+                    completed.add(note);
+                    break;
                 }
             }
         }
-
-        // System.out.println(leftColumns);
-        // System.out.println(rowsAbove);
-         System.out.println(completed.size());
-
-        // completed.stream().sorted(new Comparator<Note>() {
-
-        //     @Override
-        //     public int compare(Note o1, Note o2) {
-        //         return Integer.compare(o1.id(), o2.id());
-        //     }
-            
-        // }).forEach((n) -> {
-        //     System.out.println(n.id());
-        // });
 
         return leftColumns + (100 * rowsAbove);
     }
