@@ -40,11 +40,13 @@ public class Day16 {
         private int i;
         private int j;
         private Direction direction;
+        private boolean outOfBounds;
         
         private Beam(int i, int j, Direction direction) {
             this.i = i;
             this.j = j;
             this.direction = direction;
+            outOfBounds = false;
         }
 
         private void move() {
@@ -67,6 +69,11 @@ public class Day16 {
                 break;
             }
         }
+
+        @Override
+        public String toString() {
+            return "Beam [i=" + i + ", j=" + j + ", direction=" + direction + ", outOfBounds=" + outOfBounds + "]";
+        }
     }
 
     private char[][] buildMap(List<String> data) {
@@ -77,9 +84,7 @@ public class Day16 {
         for (int i = 0; i < mapDepth; i++) {
             for (int j = 0; j < mapLength; j++) {
                 map[i][j] = data.get(i).charAt(j);
-                System.out.print(map[i][j]);
             }
-            System.out.println();
         }
 
         return map;
@@ -87,25 +92,27 @@ public class Day16 {
 
     public int findNumberOfEnergisedTiles(List<String> data) {
         final char[][] map = buildMap(data);
-        final List<Beam> beams = new ArrayList<>();
+        List<Beam> beams = new ArrayList<>();
         beams.add(new Beam(0, 0, Direction.EAST));
 
         final Set<Position> energised = new LinkedHashSet<>();
-        energised.add(new Position(0, 0));
+        final Set<Integer> energisedWatch = new LinkedHashSet<>();
+        int counter = 0;
 
         while (hasBeamsInBounds(beams, map)) {
+            final List<Beam> newBeams = new ArrayList<>();
+
             for (int i = 0; i < beams.size(); i++) {
                 final Beam beam = beams.get(i);
                 if (isBeamOutOfBounds(beam, map)) {
+                    beam.outOfBounds = true;
                     continue;
                 }
-                beam.move();
 
                 final int currentI = beam.i;
                 final int currentJ = beam.j;
 
                 final Position currentPosition = new Position(currentI, currentJ);
-
                 energised.add(currentPosition);
 
                 final char value = map[currentI][currentJ];
@@ -131,23 +138,79 @@ public class Day16 {
                     }
                     break;
                 case '\\':
+                    switch(beam.direction) {
+                        case EAST:
+                            beam.direction = Direction.SOUTH;
+                            break;
+                        case NORTH:
+                            beam.direction = Direction.WEST;
+                            break;
+                        case SOUTH:
+                            beam.direction = Direction.EAST;
+                            break;
+                        case WEST:
+                            beam.direction = Direction.NORTH;
+                            break;
+                        default:
+                            throw new RuntimeException("Invalid direction");
+                    }
                     break;
                 case '|':
+                    switch(beam.direction) {
+                        case EAST:
+                        case WEST:
+                            newBeams.add(new Beam(currentI-1, currentJ, Direction.NORTH));
+                            beam.direction = Direction.SOUTH;
+                            break;
+                        case SOUTH:
+                        case NORTH:
+                            break;
+                        default:
+                            throw new RuntimeException("Invalid direction");
+                    }
                     break;
                 case '-':
+                    switch(beam.direction) {
+                        case EAST:
+                        case WEST:
+                            break;
+                        case SOUTH:
+                        case NORTH:
+                            newBeams.add(new Beam(currentI, currentJ-1, Direction.WEST));
+                            beam.direction = Direction.EAST;
+                            break;
+                        default:
+                            throw new RuntimeException("Invalid direction");
+                    }
                     break;
                 default:
                     throw new RuntimeException("Invalid obstacle: " + value);
                 }
 
+                beam.move();
+            }
+
+            beams.addAll(newBeams);
+            beams = new ArrayList<Beam>(beams.stream().filter((b) -> !b.outOfBounds).toList());
+
+            // very hacky loop/cycle termination
+            // if I see the same value 100 times in a row, this is our energised count
+            boolean notExists = energisedWatch.add(energised.size());
+            if (!notExists) {
+                ++counter;
+                if (counter == 100) {
+                    return energised.size();
+                }
+            } else {
+                counter = 0;
             }
         }
 
-        return 0;
+        return energised.size();
     }
     
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day16.txt"));
-        new Day16().buildMap(data);
+        System.out.println("Part 1: " + new Day16().findNumberOfEnergisedTiles(data));
     }
 }
