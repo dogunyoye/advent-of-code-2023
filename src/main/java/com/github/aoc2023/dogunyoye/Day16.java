@@ -90,10 +90,9 @@ public class Day16 {
         return map;
     }
 
-    public int findNumberOfEnergisedTiles(List<String> data) {
-        final char[][] map = buildMap(data);
+    private int traverseContraption(char[][] map, Beam start) {
         List<Beam> beams = new ArrayList<>();
-        beams.add(new Beam(0, 0, Direction.EAST));
+        beams.add(start);
 
         final Set<Position> energised = new LinkedHashSet<>();
         final Set<Integer> energisedWatch = new LinkedHashSet<>();
@@ -208,9 +207,43 @@ public class Day16 {
 
         return energised.size();
     }
+
+    public int findNumberOfEnergisedTiles(List<String> data) {
+        return traverseContraption(buildMap(data), new Beam(0, 0, Direction.EAST));
+    }
+
+    // takes ages
+    // TODO: Optimise heavily
+    public int findMaxNumberOfEnergisedTiles(List<String> data) {
+        final List<Integer> energised = new ArrayList<>();
+        final char[][] map = buildMap(data);
+
+        // top row
+        for (int i = 0; i < map[0].length; i++) {
+            energised.add(traverseContraption(map, new Beam(0, i, Direction.SOUTH)));
+        }
+
+        // right most column
+        for (int i = 0; i < map.length; i++) {
+            energised.add(traverseContraption(map, new Beam(i, map[0].length - 1, Direction.WEST)));
+        }
+
+        // bottom row
+        for (int i = 0; i < map[0].length; i++) {
+            energised.add(traverseContraption(map, new Beam(map.length - 1, i, Direction.NORTH)));
+        }
+
+        // left most column
+        for (int i = 0; i < map.length; i++) {
+            energised.add(traverseContraption(map, new Beam(i, 0, Direction.EAST)));
+        }
+
+        return energised.stream().max(Integer::compareTo).get();
+    }
     
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day16.txt"));
         System.out.println("Part 1: " + new Day16().findNumberOfEnergisedTiles(data));
+        System.out.println("Part 2: " + new Day16().findMaxNumberOfEnergisedTiles(data));
     }
 }
