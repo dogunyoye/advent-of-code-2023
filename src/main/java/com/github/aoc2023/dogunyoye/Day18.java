@@ -121,8 +121,9 @@ public class Day18 {
         return Math.abs(area) / 2;
     }
 
-    private long findArea(List<Instruction> instructions, List<Position> corners) {
+    private long findArea(List<Instruction> instructions) {
         int perimeter = 0;
+        final List<Position> corners = findCorners(instructions);
         for (int i = 0; i < corners.size() - 1; i++) {
             Position first = corners.get(i);
             Position second = corners.get(i+1);
@@ -134,14 +135,12 @@ public class Day18 {
 
     public long findDigPlanArea(List<String> data) {
         final List<Instruction> instructions = createInstructionsList(data);
-        final List<Position> corners = findCorners(instructions);
-        return findArea(instructions, corners);
+        return findArea(instructions);
     }
 
     public long findDigPlanAreaPart2(List<String> data) {
         final List<Instruction> instructions = createInstructionsListPart2(data);
-        final List<Position> corners = findCorners(instructions);
-        return findArea(instructions, corners);
+        return findArea(instructions);
     }
     
     public static void main(String[] args) throws IOException {
