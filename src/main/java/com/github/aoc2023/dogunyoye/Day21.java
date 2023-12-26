@@ -48,7 +48,7 @@ public class Day21 {
         return map[mod(p.i(), map.length)][mod(p.j(), map[0].length)] != '#';
     }
 
-    private char[][] buildMap(List<String> data) {
+    char[][] buildMap(List<String> data) {
         final int mapLength = data.get(0).length();
         final int mapDepth = data.size();
 
@@ -139,7 +139,7 @@ public class Day21 {
         return total - 1;
     }
 
-    private long findPlots(char[][] map, int maxSteps, boolean isPart2) {
+    long findPlots(char[][] map, int maxSteps, boolean isPart2) {
         final Map<State, Set<Position>> memo = new HashMap<>();
         return traverseMapOptimised(map, findStart(map), maxSteps, isPart2);
         //return traverseMap(map, memo, new State(findStart(map), maxSteps), 0, maxSteps, isPart2).size();
