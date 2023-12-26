@@ -17,7 +17,17 @@ public class Day21 {
 
     private record Position(int i, int j) { }
 
-    private record State(Position pos, int steps) { }
+    private record State(Position pos, int steps, List<Position> neighbours) { 
+        private State(Position pos, int steps) {
+            this(pos, steps, new ArrayList<>(
+                List.of(
+                    new Position(pos.i - 1, pos.j),
+                    new Position(pos.i, pos.j + 1),
+                    new Position(pos.i + 1, pos.j),
+                    new Position(pos.i, pos.j - 1))
+            ));
+        }
+    }
 
     // https://stackoverflow.com/a/2172061/2981152
     private int mod(int x, int y) {
@@ -29,63 +39,13 @@ public class Day21 {
         return result;
     }
 
-    private List<Position> getNeighbours(Position pos, char[][] map, boolean isPart2) {
-        final int mapDepth = map.length;
-        final int mapLength = map[0].length;
-
-        final int i = pos.i();
-        final int j = pos.j();
-
-        final List<Position> neighbours = new ArrayList<>();
-
+    private boolean isNeighbour(Position p, char[][] map, boolean isPart2) {
         if (!isPart2) {
-            // North
-            if (i - 1 >= 0 && map[i - 1][j] != '#') {
-                neighbours.add(new Position(i - 1, j));
-            }
-
-            // East
-            if (j + 1 < mapLength && map[i][j + 1] != '#') {
-                neighbours.add(new Position(i, j + 1));
-            }
-
-            // South
-            if (i + 1 < mapDepth && map[i + 1][j] != '#') {
-                neighbours.add(new Position(i + 1, j));
-            }
-
-            // West
-            if (j - 1 >= 0 && map[i][j - 1] != '#') {
-                neighbours.add(new Position(i, j - 1));
-            }
-
-            return neighbours;
+            final boolean inBounds = p.i() >= 0 && p.i() < map.length && p.j() >= 0 && p.j() < map[0].length;
+            return inBounds && map[p.i()][p.j()] != '#';
         }
 
-        // We're in part 2
-        // we can go out of bounds and wrap around
-    
-        // North
-        if (map[mod(i - 1, mapDepth)][mod(j, mapLength)] != '#') {
-            neighbours.add(new Position(i - 1, j));
-        }
-
-        // East
-        if (map[mod(i, mapDepth)][mod(j + 1, mapLength)] != '#') {
-            neighbours.add(new Position(i, j + 1));
-        }
-
-        // South
-        if (map[mod(i + 1, mapDepth)][mod(j, mapLength)] != '#') {
-            neighbours.add(new Position(i + 1, j));
-        }
-
-        // West
-        if (map[mod(i, mapDepth)][mod(j - 1, mapLength)] != '#') {
-            neighbours.add(new Position(i, j - 1));
-        }
-
-        return neighbours;
+        return map[mod(p.i(), map.length)][mod(p.j(), map[0].length)] != '#';
     }
 
     private char[][] buildMap(List<String> data) {
@@ -119,39 +79,45 @@ public class Day21 {
     // Slow recursive solution, solves part 1
     // memo-ising helps, but for larger max steps this method will OOM
     @SuppressWarnings({"unused"})
-    private Set<Position> traverseMap(char[][] map, Map<State, Set<Position>> memo, Position pos, int steps, int maxSteps) {
+    private Set<Position> traverseMap(char[][] map, Map<State, Set<Position>> memo,
+        State statePos, int steps, int maxSteps, boolean isPart2) {
+
         if (steps == maxSteps - 1) {
-            return new HashSet<>(getNeighbours(pos, map, false));
+            return new HashSet<>(
+                statePos.neighbours()
+                .stream()
+                .filter((p) -> isNeighbour(p, map, isPart2))
+                .toList()
+            );
         }
 
-        final State state = new State(pos, steps);
-        if (memo.containsKey(state)) {
-            return memo.get(state);
+        if (memo.containsKey(statePos)) {
+            return memo.get(statePos);
         }
 
         final Set<Position> result = new HashSet<>();
-        final List<Position> neighbours = getNeighbours(pos, map, false);
-        for (final Position n : neighbours) {
-            result.addAll(traverseMap(map, memo, n, steps + 1, maxSteps));
+        for (final Position n : statePos.neighbours()) {
+            if (!isNeighbour(n, map, isPart2)) {
+                continue;
+            }
+            result.addAll(traverseMap(map, memo, new State(n, statePos.steps - 1), steps + 1, maxSteps, isPart2));
         }
 
-        memo.put(new State(pos, steps), result);
+        memo.put(statePos, result);
         return result;
     }
 
     private long traverseMapOptimised(char[][] map, Position start, int maxSteps, boolean isPart2) {
         final Set<Position> visited = new HashSet<>();
-        final Queue<Position> queue = new ArrayDeque<>();
-        final Map<Position, Integer> stepsMap = new HashMap<>();
+        final Queue<State> queue = new ArrayDeque<>();
 
-        queue.add(start);
-        stepsMap.put(start, maxSteps);
+        queue.add(new State(start, maxSteps));
 
         long total = 0;
 
         while (!queue.isEmpty()) {
-            final Position pos = queue.poll();
-            int s = stepsMap.get(pos);
+            final State pos = queue.poll();
+            final int s = pos.steps();
 
             if (s % 2 == 0) {
                 ++total;
@@ -161,13 +127,12 @@ public class Day21 {
                 continue;
             }
 
-            for (final Position n : getNeighbours(pos, map, isPart2)) {
-                if (visited.contains(n)) {
+            for (final Position n : pos.neighbours()) {
+                if (!isNeighbour(n, map, isPart2) || visited.contains(n)) {
                     continue;
                 }
                 visited.add(n);
-                queue.add(n);
-                stepsMap.put(n, s - 1);
+                queue.add(new State(n, s - 1));
             }
         }
 
@@ -175,12 +140,14 @@ public class Day21 {
     }
 
     private long findPlots(char[][] map, int maxSteps, boolean isPart2) {
+        final Map<State, Set<Position>> memo = new HashMap<>();
         return traverseMapOptimised(map, findStart(map), maxSteps, isPart2);
+        //return traverseMap(map, memo, new State(findStart(map), maxSteps), 0, maxSteps, isPart2).size();
     }
 
     public long findPossibleGardenPlotsAfter64Steps(List<String> data) {
         final char[][] map = buildMap(data);
-        return findPlots(map, 64, false);
+        return findPlots(map, 5000, true);
     }
 
     public long findPossibleGardenPlotsAfter26501365Steps(List<String> data) {
