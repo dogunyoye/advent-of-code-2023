@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -109,17 +108,16 @@ public class Day21 {
     private long traverseMapOptimised(char[][] map, Position start, int maxSteps, boolean isPart2) {
         final Set<Position> visited = new HashSet<>();
         final Queue<State> queue = new ArrayDeque<>();
+        final Set<Position> plots = new HashSet<>();
 
         queue.add(new State(start, maxSteps));
-
-        long total = 0;
 
         while (!queue.isEmpty()) {
             final State pos = queue.poll();
             final int s = pos.steps();
 
             if (s % 2 == 0) {
-                ++total;
+                plots.add(pos.pos());
             }
 
             if (s == 0) {
@@ -135,13 +133,11 @@ public class Day21 {
             }
         }
 
-        return total - 1;
+        return plots.size();
     }
 
     long findPlots(char[][] map, int maxSteps, boolean isPart2) {
-        final Map<State, Set<Position>> memo = new HashMap<>();
         return traverseMapOptimised(map, findStart(map), maxSteps, isPart2);
-        //return traverseMap(map, memo, new State(findStart(map), maxSteps), 0, maxSteps, isPart2).size();
     }
 
     public long findPossibleGardenPlotsAfter64Steps(List<String> data) {
@@ -149,31 +145,27 @@ public class Day21 {
         return findPlots(map, 64, false);
     }
 
+    // https://www.dcode.fr/lagrange-interpolating-polynomial
+    // https://en.wikipedia.org/wiki/Lagrange_polynomial
     public long findPossibleGardenPlotsAfter26501365Steps(List<String> data) {
         final char[][] map = buildMap(data);
         final long[] plots = new long[3];
-        final int y0 = 65;
-        final int y1 = 65 + 131;
-        final int y2 = 65 + (2 * 131);
-        final int[] values = new int[]{y0, y1, y2};
+
+        final int y0 = map.length / 2;
+        final int y1 = (map.length / 2) + map.length;
+        final int y2 = (map.length / 2) + (2 * map.length);
 
         int i = 0;
-        for (int v : values) {
+        for (int v : new int[]{y0, y1, y2}) {
             plots[i] = findPlots(map, v, true);
             i++;
         }
-
-        // For some reason the number of plots
-        // calculated for these steps is off by 1
-        // TODO: work out why they need incrementing
-        ++plots[0];
-        ++plots[2];
 
         final long c = plots[0];
         final long a = (plots[2] - (2 * plots[1]) + c)/2;
         final long b = plots[1] - c - a;
 
-        final long n = ((26501365 - 65) / 131);
+        final long n = ((26501365 - (map.length / 2)) / map.length);
 
         return (a * (long)Math.pow(n, 2)) + (b * n) + c;
     }
