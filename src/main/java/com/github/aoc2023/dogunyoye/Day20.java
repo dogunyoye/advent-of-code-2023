@@ -228,12 +228,12 @@ public class Day20 {
                 final List<String> list;
                 if (receivingFrom.containsKey(dest)) {
                     list = receivingFrom.get(dest);
-                    list.add(name);
                 } else {
                     list = new ArrayList<>();
-                    list.add(name);
                     receivingFrom.put(dest, list);
                 }
+
+                list.add(name);
             }
 
             if ("broadcaster".equals(name)) {
