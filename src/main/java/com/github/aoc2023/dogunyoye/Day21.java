@@ -147,7 +147,7 @@ public class Day21 {
 
     public long findPossibleGardenPlotsAfter64Steps(List<String> data) {
         final char[][] map = buildMap(data);
-        return findPlots(map, 64, true);
+        return findPlots(map, 64, false);
     }
 
     public long findPossibleGardenPlotsAfter26501365Steps(List<String> data) {
