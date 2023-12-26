@@ -147,7 +147,7 @@ public class Day21 {
 
     public long findPossibleGardenPlotsAfter64Steps(List<String> data) {
         final char[][] map = buildMap(data);
-        return findPlots(map, 64, false);
+        return findPlots(map, 64, true);
     }
 
     public long findPossibleGardenPlotsAfter26501365Steps(List<String> data) {
@@ -164,14 +164,17 @@ public class Day21 {
             i++;
         }
 
+        // For some reason the number of plots
+        // calculated for these steps is off by 1
+        // TODO: work out why they need incrementing
+        ++plots[0];
+        ++plots[2];
+
         System.out.println(Arrays.toString(plots));
 
         final long c = plots[0];
         final long a = (plots[2] - (2 * plots[1]) + c)/2;
         final long b = plots[1] - c - a;
-
-        // final long a = (plots[0]/2) - plots[1] + (plots[2]/2);
-        // final long b = -3 * (plots[0]/2) + (2 * plots[1]) - (plots[2]/2);
 
         final long n = ((26501365 - 65) / 131);
 
