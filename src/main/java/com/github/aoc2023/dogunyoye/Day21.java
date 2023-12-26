@@ -170,8 +170,6 @@ public class Day21 {
         ++plots[0];
         ++plots[2];
 
-        System.out.println(Arrays.toString(plots));
-
         final long c = plots[0];
         final long a = (plots[2] - (2 * plots[1]) + c)/2;
         final long b = plots[1] - c - a;
