@@ -13,7 +13,7 @@ public class Day12 {
 
     private record ConditionRecord(String record, int[] sequence, String regex) { }
 
-    private record MemoKey(int idx, int num) { }
+    private record State(int idx, int num) { }
 
     private List<ConditionRecord> createConditionRecords(List<String> data, int repeat) {
         final List<ConditionRecord> conditionRecords = new ArrayList<>();
@@ -126,7 +126,7 @@ public class Day12 {
      * 
      * Solution inspired from: https://www.reddit.com/r/adventofcode/comments/18hg99r/2023_day_12_simple_tutorial_with_memoization/
      */
-    private static long findValidCombinationsOptimised(String record, int[] damaged, Map<MemoKey, Long> memo, int i) {
+    private static long findValidCombinationsOptimised(String record, int[] damaged, Map<State, Long> memo, int i) {
         if (damaged.length == 0) {
             if (i < record.length() && record.indexOf("#", i) > -1) {
                 return 0;
@@ -145,7 +145,7 @@ public class Day12 {
             return 0;
         }
 
-        final MemoKey key = new MemoKey(i, damaged.length);
+        final State key = new State(i, damaged.length);
         if (memo.containsKey(key)) {
             return memo.get(key);
         }
@@ -171,7 +171,7 @@ public class Day12 {
     public long sumAllValidArrangementsUnfolded(List<String> data) {
         long sum = 0;
         final List<ConditionRecord> conditionRecords = createConditionRecords(data, 5);
-        final Map<MemoKey, Long> memo = new HashMap<>();
+        final Map<State, Long> memo = new HashMap<>();
 
         for (final ConditionRecord cr : conditionRecords) {
             sum += findValidCombinationsOptimised(cr.record(), cr.sequence(), memo, 0);
