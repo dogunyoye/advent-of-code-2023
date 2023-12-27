@@ -108,7 +108,7 @@ public class Day21 {
     private long traverseMapOptimised(char[][] map, Position start, int maxSteps, boolean isPart2) {
         final Set<Position> visited = new HashSet<>();
         final Queue<State> queue = new ArrayDeque<>();
-        final Set<Position> plots = new HashSet<>();
+        long total = 0;
 
         queue.add(new State(start, maxSteps));
 
@@ -117,7 +117,7 @@ public class Day21 {
             final int s = pos.steps();
 
             if (s % 2 == 0) {
-                plots.add(pos.pos());
+                ++total;
             }
 
             if (s == 0) {
@@ -133,7 +133,12 @@ public class Day21 {
             }
         }
 
-        return plots.size();
+        // if the number of steps required is an even number
+        // the above implementation counts the start position twice
+        // hence the requirement to -1 from the total. This does not
+        // happen if the number of steps is odd.
+        // https://www.reddit.com/r/adventofcode/comments/18qyxxd/comment/kf1upyw/?utm_source=share&utm_medium=web2x&context=3
+        return maxSteps % 2 == 0 ? total - 1 : total;
     }
 
     long findPlots(char[][] map, int maxSteps, boolean isPart2) {
