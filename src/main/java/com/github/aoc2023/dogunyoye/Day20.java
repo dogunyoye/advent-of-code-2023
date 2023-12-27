@@ -59,6 +59,13 @@ public class Day20 {
         abstract PulseSendResult sendPulse();
     }
 
+    /**
+     * Flip-flop modules (prefix %) are either on or off; they are initially off.
+     * If a flip-flop module receives a high pulse, it is ignored and nothing happens.
+     * However, if a flip-flop module receives a low pulse, it flips between on and off.
+     * If it was off, it turns on and sends a high pulse.
+     * If it was on, it turns off and sends a low pulse.
+     */
     private class FlipFlop extends Module {
 
         private final BitSet state;
@@ -107,6 +114,14 @@ public class Day20 {
 
     }
 
+    /**
+     * Conjunction modules (prefix &) remember the type of the most recent pulse
+     * received from each of their connected input modules; they initially default
+     * to remembering a low pulse for each input. When a pulse is received, the
+     * conjunction module first updates its memory for that input. Then, if it
+     * remembers high pulses for all inputs, it sends a low pulse; otherwise, it
+     * sends a high pulse.
+     */
     private class Conjuction extends Module {
 
         private final Map<String, Module> modules;
@@ -151,9 +166,8 @@ public class Day20 {
 
             for (final String moduleName : destinations) {
                 Module m = modules.get(moduleName);
-                // only 1 module (rx) which is purely
-                // receiving i.e it does not send pulses
-                // to other modules.
+                // only 1 module (rx) which is only
+                // receives pulses and does not send any.
                 // Relevant for part 2
                 if (m == null) {
                     modules.put(moduleName, new NoOp());
@@ -171,6 +185,10 @@ public class Day20 {
         }
     }
 
+    /**
+     * Broadcast module (named broadcaster). When it receives a pulse, it sends
+     * the same pulse to all of its destination modules.
+     */
     private class Broadcaster extends Module {
 
         private final Map<String, Module> modules;
@@ -254,12 +272,14 @@ public class Day20 {
             }
         }
 
-        for (final Entry<String, Module> e : modules.entrySet()) {
-            final Module m = e.getValue();
-            if (m instanceof Conjuction) {
-                ((Conjuction)m).setArrivals(receivingFrom.get(e.getKey()));
-            }
-        }
+        modules.entrySet()
+            .stream()
+            .filter((e) -> e.getValue() instanceof Conjuction)
+            .forEach((e) -> {
+                final String name = e.getKey();
+                final Module m = e.getValue();
+                ((Conjuction)m).setArrivals(receivingFrom.get(name));
+            });
 
         return modules;
     }
