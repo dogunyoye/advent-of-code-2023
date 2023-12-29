@@ -152,7 +152,7 @@ public class Day22 {
         return false;
     }
 
-    private long disintegrateBricks(List<Brick> bricks) {
+    private Set<Brick> findNonDisintegratedBricks(List<Brick> bricks) {
         final Set<Position> allBrickPoints = new HashSet<>();
         final Map<Position, Brick> positionBrickMap = new HashMap<>();
 
@@ -239,35 +239,30 @@ public class Day22 {
          * 
          * We remove these supporting bricks from every set
          * as they are not candidates for removal
-         * 
-         * We do this until we have no more bricks supported
-         * by a single brick. ie `hasBrickSupportedByOneBrick`
-         * returns `false`
          */
-        if (hasBrickSupportedByOneBrick(supportedBySet)) {
 
-            // - Find all the bricks supported by one brick
-            // - Add this brick to a set of bricks that cannot
-            // be disintegrated
-            for (final Set<Brick> set : supportedBySet) {
-                if (set.size() == 1) {
-                    cannotDisintegrate.addAll(set);
-                }
-            }
-
-            // remove the bricks we cannot disintegrate
-            // from all sets
-            for (final Set<Brick> set : supportedBySet) {
-                set.removeAll(cannotDisintegrate);
+        // - Find all the bricks supported by one brick
+        // - Add this brick to a set of bricks that cannot
+        // be disintegrated
+        for (final Set<Brick> set : supportedBySet) {
+            if (set.size() == 1) {
+                cannotDisintegrate.addAll(set);
             }
         }
 
-        return bricks.size() - cannotDisintegrate.size();
+        // remove the bricks we cannot disintegrate
+        // from all sets
+        for (final Set<Brick> set : supportedBySet) {
+            set.removeAll(cannotDisintegrate);
+        }
+
+        return cannotDisintegrate;
     }
 
     public long findNumberOfBricksToDisintegrate(List<String> data) {
         final List<Brick> bricks = createBricks(data);
-        return disintegrateBricks(bricks);
+        final Set<Brick> nonDisintegratedBricks = findNonDisintegratedBricks(bricks);
+        return bricks.size() - nonDisintegratedBricks.size();
     }
 
     public static void main(String[] args) throws IOException {
