@@ -194,8 +194,6 @@ public class Day22 {
             }
         }
 
-        //visualiseBricks(bricks);
-
         final Map<Brick, Set<Brick>> supportedByMap = new HashMap<>();
 
         for (final Brick brick : bricks) {
@@ -250,7 +248,7 @@ public class Day22 {
      * When a brick no support (ie an empty set in the support map), we can disintegrate
      * it (add it to the queue) and restart the process again.
      *
-     * We do this until there are no more blocks left to disintegrate (empty queue)
+     * We do this until there are no more bricks left to disintegrate (empty queue)
      */
     private int performChainReaction(Set<Brick> cannotDisintegrate, Map<Brick, Set<Brick>> support) {
         int result = 0;
