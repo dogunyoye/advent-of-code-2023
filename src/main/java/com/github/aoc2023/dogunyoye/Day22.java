@@ -3,12 +3,14 @@ package com.github.aoc2023.dogunyoye;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 public class Day22 {
@@ -63,6 +65,7 @@ public class Day22 {
         // to highest. This is so we drop the bricks in the
         // correct order (one by one, tetris style)
         bricks.sort(new BrickComparator());
+        id = 0;
         return bricks;
     }
 
@@ -107,6 +110,7 @@ public class Day22 {
         return dropped;
     }
 
+    @SuppressWarnings("unused")
     private void visualiseBricks(List<Brick> bricks) {
         int maxX = Integer.MIN_VALUE;
         int maxY = Integer.MIN_VALUE;
@@ -224,6 +228,65 @@ public class Day22 {
         return supportedByMap;
     }
 
+    private Map<Brick, Set<Brick>> copyMap(Map<Brick, Set<Brick>> supportMap) {
+        final Map<Brick, Set<Brick>> copy = new HashMap<>();
+        supportMap.entrySet()
+            .forEach((e) -> {
+                copy.put(e.getKey(), new HashSet<>(e.getValue()));
+            });
+
+        return copy;
+    }
+
+    /**
+     * Part 2
+     *
+     * Aim here is to simulate a "chain reaction"
+     *
+     * We do this by disintegrating the blocks we identified in part 1
+     * Disintegrating means we remove support across all bricks which have this brick
+     * as a supporter (ie a member of their set in the support map)
+     *
+     * When a brick no support (ie an empty set in the support map), we can disintegrate
+     * it (add it to the queue) and restart the process again.
+     *
+     * We do this until there are no more blocks left to disintegrate (empty queue)
+     */
+    private int performChainReaction(Set<Brick> cannotDisintegrate, Map<Brick, Set<Brick>> support) {
+        int result = 0;
+
+        for (final Brick b : cannotDisintegrate) {
+
+            final Queue<Brick> queue = new ArrayDeque<>(List.of(b));
+            final Set<Brick> affectedBricks = new HashSet<>();
+            final Map<Brick, Set<Brick>> supportMap = copyMap(support);
+
+            while (!queue.isEmpty()) {
+                final Brick brick = queue.poll();
+                final List<Brick> next =
+                    supportMap.entrySet().stream()
+                    .filter((e) -> e.getValue().contains(brick))
+                    .map((e) -> {
+                        return e.getKey();
+                    })
+                    .toList();
+
+                for (Brick nextBrick : next) {
+                    Set<Brick> set = supportMap.get(nextBrick);
+                    set.remove(brick);
+                    if (set.isEmpty()) {
+                        affectedBricks.add(nextBrick);
+                        queue.add(nextBrick);
+                    }
+                }
+            }
+
+            result += affectedBricks.size();
+        }
+
+        return result;
+    }
+
     /**
      * Every brick which is supported by only one brick
      * cannot be disintegrated.
@@ -234,15 +297,23 @@ public class Day22 {
         return cannotDisintegrate;
     }
 
-    public long findNumberOfBricksToDisintegrate(List<String> data) {
+    public int findNumberOfBricksToDisintegrate(List<String> data) {
         final List<Brick> bricks = createBricks(data);
         final Map<Brick, Set<Brick>> supportMap = buildSupportMap(bricks);
         final Set<Brick> nonDisintegratedBricks = findNonDisintegratedBricks(supportMap);
         return bricks.size() - nonDisintegratedBricks.size();
     }
 
+    public int calculateChainReaction(List<String> data) {
+        final List<Brick> bricks = createBricks(data);
+        final Map<Brick, Set<Brick>> supportMap = buildSupportMap(bricks);
+        final Set<Brick> nonDisintegratedBricks = findNonDisintegratedBricks(supportMap);
+        return performChainReaction(nonDisintegratedBricks, supportMap);
+    } 
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day22.txt"));
         System.out.println("Part 1: " + new Day22().findNumberOfBricksToDisintegrate(data));
+        System.out.println("Part 2: " + new Day22().calculateChainReaction(data));
     }
 }
