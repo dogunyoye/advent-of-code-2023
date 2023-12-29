@@ -143,16 +143,7 @@ public class Day22 {
         printMap(yView);
     }
 
-    private boolean hasBrickSupportedByOneBrick(List<Set<Brick>> list) {
-        for (final Set<Brick> set : list) {
-            if (set.size() == 1) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private Set<Brick> findNonDisintegratedBricks(List<Brick> bricks) {
+    private Map<Brick, Set<Brick>> buildSupportMap(List<Brick> bricks) {
         final Set<Position> allBrickPoints = new HashSet<>();
         final Map<Position, Brick> positionBrickMap = new HashMap<>();
 
@@ -230,38 +221,23 @@ public class Day22 {
             }
         }
 
-        final Set<Brick> cannotDisintegrate = new HashSet<>();        
-        final List<Set<Brick>> supportedBySet = new ArrayList<>(supportedByMap.values());
+        return supportedByMap;
+    }
 
-        /**
-         * Every brick which is supported by only one brick
-         * cannot be disintegrated.
-         * 
-         * We remove these supporting bricks from every set
-         * as they are not candidates for removal
-         */
-
-        // - Find all the bricks supported by one brick
-        // - Add this brick to a set of bricks that cannot
-        // be disintegrated
-        for (final Set<Brick> set : supportedBySet) {
-            if (set.size() == 1) {
-                cannotDisintegrate.addAll(set);
-            }
-        }
-
-        // remove the bricks we cannot disintegrate
-        // from all sets
-        for (final Set<Brick> set : supportedBySet) {
-            set.removeAll(cannotDisintegrate);
-        }
-
+    /**
+     * Every brick which is supported by only one brick
+     * cannot be disintegrated.
+     */
+    private Set<Brick> findNonDisintegratedBricks(Map<Brick, Set<Brick>> supportMap) {
+        final Set<Brick> cannotDisintegrate = new HashSet<>();
+        supportMap.values().stream().filter((s) -> s.size() == 1).forEach((s) -> cannotDisintegrate.addAll(s));
         return cannotDisintegrate;
     }
 
     public long findNumberOfBricksToDisintegrate(List<String> data) {
         final List<Brick> bricks = createBricks(data);
-        final Set<Brick> nonDisintegratedBricks = findNonDisintegratedBricks(bricks);
+        final Map<Brick, Set<Brick>> supportMap = buildSupportMap(bricks);
+        final Set<Brick> nonDisintegratedBricks = findNonDisintegratedBricks(supportMap);
         return bricks.size() - nonDisintegratedBricks.size();
     }
 
