@@ -244,7 +244,7 @@ public class Day22 {
          * by a single brick. ie `hasBrickSupportedByOneBrick`
          * returns `false`
          */
-        while (hasBrickSupportedByOneBrick(supportedBySet)) {
+        if (hasBrickSupportedByOneBrick(supportedBySet)) {
 
             // - Find all the bricks supported by one brick
             // - Add this brick to a set of bricks that cannot
