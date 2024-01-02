@@ -36,22 +36,29 @@ public class Day24 {
 
     // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_line_equations
     // https://www.ncl.ac.uk/webtemplate/ask-assets/external/maths-resources/core-mathematics/geometry/equation-of-a-straight-line.html
+    // x = (d -c)/(a - b)
+    // y = (a * (d - c)/(a - b)) + c
     long findNumberOfIntersectionsInTheTestArea(List<String> data, long min, long max) {
         final List<Hail> hailstones = createHail(data);
         int interceptCount = 0;
 
         for (int i = 0; i < hailstones.size() - 1; i++) {
             final Hail h = hailstones.get(i);
-            final double[] a1c1 =
+            final double[] ac =
                 gradientAndYIntercept(h.position().x(), h.position().y(), h.velocity().xVel(), h.velocity().yVel());
+            final double a = ac[0];
+            final double c = ac[1];
 
             for (int j = i + 1; j < hailstones.size(); j++) {
                 final Hail next = hailstones.get(j);
-                final double[] a2c2 =
+                final double[] bd =
                     gradientAndYIntercept(next.position().x(), next.position().y(), next.velocity().xVel(), next.velocity().yVel());
+                final double b = bd[0];
+                final double d = bd[1];
 
-                final double x = (a2c2[1] - a1c1[1])/(a1c1[0] - a2c2[0]);
-                final double y = (a1c1[0] * (a2c2[1] - a1c1[1])/(a1c1[0] - a2c2[0])) + a1c1[1];
+                // intersection coordinates
+                final double x = (d - c)/(a - b);
+                final double y = (a * (d - c)/(a - b)) + c;
 
                 // first check that the intersection point is inside
                 // the test range
