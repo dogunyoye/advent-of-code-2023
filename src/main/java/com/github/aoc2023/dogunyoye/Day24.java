@@ -1,33 +1,29 @@
 package com.github.aoc2023.dogunyoye;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class Day24 {
 
-    private record Position2D(long x, long y) { }
-
-    private record Position3D(long x, long y, long z) { }
+    private record Position(long x, long y, long z) { }
 
     private record Velocity(long xVel, long yVel, long zVel) { }
 
     private record TestArea(long min, long max) { }
 
-    private record Hail(Position3D position, Velocity velocity) { }
+    private record Hail(Position position, Velocity velocity) { }
 
     private static Hail createHail(String line) {
         final String[] parts = line.split(" @ ");
         final String[] pos = parts[0].split(",");
         final String[] vel = parts[1].split(",");
 
-        final Position3D p = new Position3D(Long.parseLong(pos[0].trim()), Long.parseLong(pos[1].trim()), Long.parseLong(pos[2].trim()));
+        final Position p = new Position(Long.parseLong(pos[0].trim()), Long.parseLong(pos[1].trim()), Long.parseLong(pos[2].trim()));
         final Velocity v = new Velocity(Long.parseLong(vel[0].trim()), Long.parseLong(vel[1].trim()), Long.parseLong(vel[2].trim()));
 
         return new Hail(p, v);
@@ -76,12 +72,28 @@ public class Day24 {
             return null;
         }
 
-        // System.out.println(Arrays.toString(ac));
-        // System.out.println(Arrays.toString(bd));
-        // System.out.println("x: " + x + " y: " + y);
-        // System.out.println("++++++++++++++");
-
         return new double[]{x, y};
+    }
+
+    private long[] intersectsPart2(Hail first, Hail second) {
+        final BigInteger a0 = BigInteger.valueOf(first.velocity().yVel());
+        final BigInteger b0 = BigInteger.valueOf(-1 * first.velocity().xVel());
+        final BigInteger c0 = BigInteger.valueOf(first.velocity().yVel() * first.position().x() - first.velocity().xVel() * first.position().y());
+
+        final BigInteger a1 = BigInteger.valueOf(second.velocity().yVel());
+        final BigInteger b1 = BigInteger.valueOf(-1 * second.velocity().xVel());
+        final BigInteger c1 = BigInteger.valueOf(second.velocity().yVel() * second.position().x() - second.velocity().xVel() * second.position().y());
+
+        final BigInteger d = b1.multiply(a0).subtract(b0.multiply(a1));
+
+        if (d.longValue() == 0) {
+            return null;
+        }
+
+        final BigInteger x = (b1.multiply(c0).subtract(b0.multiply(c1))).divide(d);
+        final BigInteger y = (c1.multiply(a0).subtract(c0.multiply(a1))).divide(d);
+    
+        return new long[]{x.longValue(), y.longValue()};
     }
 
     long findNumberOfIntersectionsInTheTestArea(List<String> data, long min, long max) {
@@ -104,65 +116,13 @@ public class Day24 {
         return findNumberOfIntersectionsInTheTestArea(data, 200000000000000L, 400000000000000L);
     }
 
-    // private Position2D findIntersectWithNewVelocity2D(List<Hail> hailstones, int toCheck, int x, int y, int z) {
-    //     final Map<Position2D, Integer> positionCount = new HashMap<>();
-    //     for (int i = 0; i < toCheck; i++) {
-    //         final Hail h = hailstones.get(i);
-    //         final Velocity v =
-    //             new Velocity(h.velocity().xVel - x, h.velocity().yVel() - y, h.velocity().zVel() - z);
+    private Set<Long> intersectsWithNewVelocityXY(List<Hail> hailstones, int x, int y) {
+        final Set<Long> xy = new HashSet<>();
+        final int toCheck = 0;
 
-    //         Position2D p = new Position2D(h.position().x(), h.position().y());
-    //         for (int count = 0; count < 250; count++) {
-    //             // apply velocity
-    //             p = new Position2D(p.x() + v.xVel(), p.y() + v.yVel());
-    //             if (positionCount.containsKey(p)) {
-    //                 positionCount.put(p, positionCount.get(p) + 1);
-    //             } else {
-    //                 positionCount.put(p, 1);
-    //             }
-    //         }
-    //     }
-
-    //     if (!positionCount.values().stream().anyMatch((c) -> c == toCheck)) {
-    //         return null;
-    //     }
-
-    //     return positionCount.entrySet().stream().filter((e) -> e.getValue() == toCheck).map((e) -> e.getKey()).findFirst().get();
-    // }
-
-    // private Position3D findIntersectWithNewVelocity3D(List<Hail> hailstones, int toCheck, int x, int y, int z) {
-    //     final Map<Position3D, Integer> positionCount = new HashMap<>();
-    //     for (int i = 0; i < toCheck; i++) {
-    //         final Hail h = hailstones.get(i);
-    //         final Velocity v =
-    //             new Velocity(h.velocity().xVel - x, h.velocity().yVel() - y, h.velocity().zVel() - z);
-
-    //         Position3D p = new Position3D(h.position().x(), h.position().y(), h.position().z());
-    //         for (int count = 0; count < 250; count++) {
-    //             // apply velocity
-    //             p = new Position3D(p.x() + v.xVel(), p.y() + v.yVel(), p.z() + v.zVel());
-    //             if (positionCount.containsKey(p)) {
-    //                 positionCount.put(p, positionCount.get(p) + 1);
-    //             } else {
-    //                 positionCount.put(p, 1);
-    //             }
-    //         }
-    //     }
-
-    //     if (!positionCount.values().stream().anyMatch((c) -> c == toCheck)) {
-    //         return null;
-    //     }
-
-    //     return positionCount.entrySet().stream().filter((e) -> e.getValue() == toCheck).map((e) -> e.getKey()).findFirst().get();
-    // }
-
-    private Set<Double> intersectsWithNewVelocityXY(List<Hail> hailstones, int x, int y) {
-        final Set<Double> xy = new HashSet<>();
-        final int toCheck =hailstones.size();
-
-        for (int i = 0; i < toCheck; i++) {
+        for (int i = 0; i <= toCheck; i++) {
             final Hail h = hailstones.get(i);
-            for (int j = i + 1; j < hailstones.size(); j++) {
+            for (int j = i + 1; j < 5; j++) {
                 final Velocity newV = new Velocity(h.velocity().xVel - x, h.velocity().yVel() - y, 0);
 
                 final Hail nextH = hailstones.get(j);
@@ -171,7 +131,7 @@ public class Day24 {
                 final Hail h0 = new Hail(h.position(), newV);
                 final Hail h1 = new Hail(nextH.position(), nextHNewV);
 
-                final double[] intersection = intersects(h0, h1, null);
+                final long[] intersection = intersectsPart2(h0, h1);
                 if (intersection == null) {
                     return null;
                 }
@@ -185,26 +145,25 @@ public class Day24 {
             } 
         }
 
-        //System.out.println(xy);
         return xy.size() == 2 ? xy : null;
     }
 
-    private Set<Double> intersectsWithNewVelocityXZ(List<Hail> hailstones, int x, int z) {
-        final Set<Double> xz = new HashSet<>();
-        final int toCheck = hailstones.size();
+    private Set<Long> intersectsWithNewVelocityXZ(List<Hail> hailstones, int x, int z) {
+        final Set<Long> xz = new HashSet<>();
+        final int toCheck = 0;
 
-        for (int i = 0; i < toCheck; i++) {
+        for (int i = 0; i <= toCheck; i++) {
             final Hail h = hailstones.get(i);
-            for (int j = i + 1; j < hailstones.size(); j++) {
+            for (int j = i + 1; j < 5; j++) {
                 final Velocity newV = new Velocity(h.velocity().xVel - x, h.velocity().zVel() - z, 0);
 
                 final Hail nextH = hailstones.get(j);
                 final Velocity nextHNewV = new Velocity(nextH.velocity().xVel - x, nextH.velocity().zVel() - z, 0);
 
-                final Hail h0 = new Hail(new Position3D(h.position.x(), h.position.z(), 0), newV);
-                final Hail h1 = new Hail(new Position3D(nextH.position.x(), nextH.position().z(), 0), nextHNewV);
+                final Hail h0 = new Hail(new Position(h.position.x(), h.position.z(), 0), newV);
+                final Hail h1 = new Hail(new Position(nextH.position.x(), nextH.position().z(), 0), nextHNewV);
 
-                final double[] intersection = intersects(h0, h1, null);
+                final long[] intersection = intersectsPart2(h0, h1);
                 if (intersection == null) {
                     return null;
                 }
@@ -222,51 +181,32 @@ public class Day24 {
     }
 
     public long sumOfCoordinatesThatHitAllHailstones(List<String> data) {
-        final List<Hail> hailstones =
-            createHail(data).stream()
-            //.filter((h) -> Math.sqrt(Math.pow(h.velocity().xVel(), 2) + Math.pow(h.velocity().yVel(), 2) + Math.pow(h.velocity().zVel, 2)) < 500)
-            .toList();
-        final Set<Double> answer = new HashSet<>();
+        final List<Hail> hailstones = createHail(data);
+        final Set<Long> answer = new HashSet<>();
 
-        for (int x = -1000; x <= 1000; x++) {
-            for (int y = -1000; y <= 1000; y++) {
-                final Set<Double> xyCandidate = intersectsWithNewVelocityXY(hailstones, x, y);
+        for (int x = -500; x <= 500; x++) {
+            for (int y = -500; y <= 500; y++) {
+                final Set<Long> xyCandidate = intersectsWithNewVelocityXY(hailstones, x, y);
                 if (xyCandidate == null) {
                     continue;
                 }
                 answer.addAll(xyCandidate);
-
-                // final Position2D pxy = findIntersectWithNewVelocity2D(hailstones, hailstones.size(), x, y, 0);
-                // if (pxy == null) {
-                //     continue;
-                // }
-
-                for (int z = -1000; z <= 1000; z++) {
-                    System.out.println("in here for, x: " + x + " y: " + y );
-                    //System.out.println("found position: " + pxy);
-
-                    final Set<Double> xzCandidate = intersectsWithNewVelocityXZ(hailstones, x, z);
+                for (int z = -500; z <= 500; z++) {
+                    final Set<Long> xzCandidate = intersectsWithNewVelocityXZ(hailstones, x, z);
                     if (xzCandidate != null) {
                         answer.addAll(xzCandidate);
-                        System.out.println(answer);
-                        return Double.valueOf(answer.stream().mapToDouble(n -> n).sum()).longValue();
+                        return answer.stream().mapToLong(n -> n).sum();
                     }
-
-                    // final Position3D pxyz = findIntersectWithNewVelocity3D(hailstones, hailstones.size(), x, y, z);
-                    // if (pxyz != null) {
-                    //     System.out.println("found answer: " + pxyz);
-                    //     return pxyz.x() + pxyz.y() + pxyz.z();
-                    // }
                 }
             }
         }
 
-        return -1;
+        throw new RuntimeException("No solution found!");
     }
 
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day24.txt"));
-        //System.out.println("Part 1: " + new Day24().findNumberOfIntersectionsInTheTestArea(data));
+        System.out.println("Part 1: " + new Day24().findNumberOfIntersectionsInTheTestArea(data));
         System.out.println("Part 2: " + new Day24().sumOfCoordinatesThatHitAllHailstones(data));
     }
 }
