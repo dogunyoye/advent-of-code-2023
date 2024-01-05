@@ -75,13 +75,14 @@ public class Day24 {
         return new double[]{x, y};
     }
 
+    // https://en.wikipedia.org/wiki/Intersection_(geometry)#Two_lines
     private long[] intersectsPart2(Hail first, Hail second) {
         final BigInteger a0 = BigInteger.valueOf(first.velocity().yVel());
-        final BigInteger b0 = BigInteger.valueOf(-1 * first.velocity().xVel());
+        final BigInteger b0 = BigInteger.valueOf(-first.velocity().xVel());
         final BigInteger c0 = BigInteger.valueOf(first.velocity().yVel() * first.position().x() - first.velocity().xVel() * first.position().y());
 
         final BigInteger a1 = BigInteger.valueOf(second.velocity().yVel());
-        final BigInteger b1 = BigInteger.valueOf(-1 * second.velocity().xVel());
+        final BigInteger b1 = BigInteger.valueOf(-second.velocity().xVel());
         final BigInteger c1 = BigInteger.valueOf(second.velocity().yVel() * second.position().x() - second.velocity().xVel() * second.position().y());
 
         final BigInteger d = b1.multiply(a0).subtract(b0.multiply(a1));
