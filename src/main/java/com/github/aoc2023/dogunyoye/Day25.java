@@ -189,6 +189,6 @@ public class Day25 {
     
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day25.txt"));
-        System.out.println("Day 1: " + new Day25().findProductOfDisconnectedComponents(data));
+        System.out.println("Part 1: " + new Day25().findProductOfDisconnectedComponents(data));
     }
 }
