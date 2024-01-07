@@ -193,11 +193,11 @@ public class Day16 {
             beams = new ArrayList<Beam>(beams.stream().filter((b) -> !b.outOfBounds).toList());
 
             // very hacky loop/cycle termination
-            // if I see the same value 100 times in a row, this is our energised count
+            // if I see the same value 5 times in a row, this is our energised count
             boolean notExists = energisedWatch.add(energised.size());
             if (!notExists) {
                 ++counter;
-                if (counter == 100) {
+                if (counter == 5) {
                     return energised.size();
                 }
             } else {
