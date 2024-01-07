@@ -174,8 +174,8 @@ public class Day25 {
      * Uses an open source lib (https://jgrapht.org/) to build a graph
      * and perform a min cut (using the above algorithm).
      * 
-     * The `minCut()` method returns the size of one half of the min cut.
-     * Simply substract this from the number of nodes (vertices) to obtain
+     * The `minCut()` method returns the number of vertices of one half
+     * of the min cut. Simply substract this from the number of vertices to obtain
      * the size of the other half.
      * 
      * Multiply these values together, job's a good'un
@@ -185,6 +185,24 @@ public class Day25 {
         final StoerWagnerMinimumCut<String, DefaultEdge> swMinCut = new StoerWagnerMinimumCut<>(graph);
         final int minCut = swMinCut.minCut().size();
         return minCut * (graph.vertexSet().size() - minCut);
+    }
+
+    /**
+     * Used Graphviz (https://graphviz.org/) to build a visual representation of
+     * the network. From this, we can easily identify the 3 edges which need to
+     * be severed in order to form 2 separate graphs.
+     */
+    public int findProductOfDisconnectedComponentsGraphViz(List<String> data) {
+        final Map<String, Set<String>> connected = buildConnectedMap(data);
+        final List<String> pair0 = List.of("xsl", "tpb");
+        final List<String> pair1 = List.of("bmx", "zlv");
+        final List<String> pair2 = List.of("qpg", "lrd");
+        final Set<Set<String>> disconnectedPaths = checkAllComponentsAreDisconnected(connected, List.of(pair0, pair1, pair2));
+        if (disconnectedPaths != null) {
+            return disconnectedPaths.stream().mapToInt((s) -> s.size()).reduce(1, (a, b) -> a * b);
+        }
+
+        throw new RuntimeException("No solution found!");
     }
     
     public static void main(String[] args) throws IOException {
