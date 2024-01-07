@@ -70,16 +70,16 @@ public class Day25 {
     }
 
     private List<List<String>> buildConnectedPairs(Map<String, Set<String>> connected) {
-        final List<List<String>> pairs = new ArrayList<>();
+        final List<List<String>> edges = new ArrayList<>();
         connected
             .entrySet()
             .forEach((e) -> {
                 for (final String child : e.getValue()) {
-                    pairs.add(new ArrayList<String>(List.of(e.getKey(), child)));
+                    edges.add(new ArrayList<String>(List.of(e.getKey(), child)));
                 }
             });
         
-        return pairs;
+        return edges;
     }
 
     private Map<String, Set<String>> copyConnectedMap(Map<String, Set<String>> connected) {
@@ -115,22 +115,22 @@ public class Day25 {
         return path;
     }
 
-    private Set<Set<String>> checkAllComponentsAreDisconnected(Map<String, Set<String>> connected, List<List<String>> pairs) {
+    private Set<Set<String>> checkAllComponentsAreDisconnected(Map<String, Set<String>> connected, List<List<String>> edges) {
 
         final List<String> allDisconnected = new ArrayList<>();
-        for (List<String> pair : pairs) {
-            final Set<String> components0 = connected.get(pair.get(0));
-            components0.remove(pair.get(1));
+        for (List<String> edge : edges) {
+            final Set<String> components0 = connected.get(edge.get(0));
+            components0.remove(edge.get(1));
 
-            final Set<String> components1 = connected.get(pair.get(1));
-            components1.remove(pair.get(0));
+            final Set<String> components1 = connected.get(edge.get(1));
+            components1.remove(edge.get(0));
 
-            allDisconnected.addAll(pair);
+            allDisconnected.addAll(edge);
         }
 
         final Set<Set<String>> paths = new HashSet<>();
 
-        for (List<String> pair : pairs) {
+        for (List<String> pair : edges) {
             for (final String component : pair) {
                 final Set<String> path = dfs(connected, component);
                 paths.add(path);
@@ -147,17 +147,17 @@ public class Day25 {
     // works for the example but will take a very long time for the actual input
     public int findProductOfDisconnectedComponentsNaive(List<String> data) {
         final Map<String, Set<String>> connected = buildConnectedMap(data);
-        final List<List<String>> pairs = buildConnectedPairs(connected);
+        final List<List<String>> edges = buildConnectedPairs(connected);
 
-        for (int i = 0; i < pairs.size() - 2; i++) {
-            for (int j = i + 1; j < pairs.size() - 1; j++) {
-                for (int k = j + 1; k < pairs.size(); k++) {
+        for (int i = 0; i < edges.size() - 2; i++) {
+            for (int j = i + 1; j < edges.size() - 1; j++) {
+                for (int k = j + 1; k < edges.size(); k++) {
                     final Map<String, Set<String>> copy = copyConnectedMap(connected);
-                    final List<String> pair0 = pairs.get(i);
-                    final List<String> pair1 = pairs.get(j);
-                    final List<String> pair2 = pairs.get(k);
+                    final List<String> edge0 = edges.get(i);
+                    final List<String> edge1 = edges.get(j);
+                    final List<String> edge2 = edges.get(k);
 
-                    final Set<Set<String>> disconnectedPaths = checkAllComponentsAreDisconnected(copy, List.of(pair0, pair1, pair2));
+                    final Set<Set<String>> disconnectedPaths = checkAllComponentsAreDisconnected(copy, List.of(edge0, edge1, edge2));
                     if (disconnectedPaths != null) {
                         return disconnectedPaths.stream().mapToInt((s) -> s.size()).reduce(1, (a, b) -> a * b);
                     }
