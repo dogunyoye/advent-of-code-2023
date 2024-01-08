@@ -118,7 +118,7 @@ public class Day25 {
     private Set<Set<String>> checkAllComponentsAreDisconnected(Map<String, Set<String>> connected, List<List<String>> edges) {
 
         final List<String> allDisconnected = new ArrayList<>();
-        for (List<String> edge : edges) {
+        for (final List<String> edge : edges) {
             final Set<String> components0 = connected.get(edge.get(0));
             components0.remove(edge.get(1));
 
@@ -174,8 +174,8 @@ public class Day25 {
      * Uses an open source lib (https://jgrapht.org/) to build a graph
      * and perform a min cut (using the above algorithm).
      * 
-     * The `minCut()` method returns the set of vertices of one half
-     * of the min cut. Simply substract this from the total number of
+     * The {@code minCut()} method returns the set of vertices on one half
+     * of the min cut. Simply substract this value from the total number of
      * vertices to obtain the size of the other half.
      * 
      * Multiply these values together, job's a good'un
@@ -194,6 +194,7 @@ public class Day25 {
      */
     public int findProductOfDisconnectedComponentsGraphViz(List<String> data) {
         final Map<String, Set<String>> connected = buildConnectedMap(data);
+        // the three edges specific to my input
         final List<String> edge0 = List.of("xsl", "tpb");
         final List<String> edge1 = List.of("bmx", "zlv");
         final List<String> edge2 = List.of("qpg", "lrd");
