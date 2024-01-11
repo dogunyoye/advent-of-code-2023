@@ -23,23 +23,23 @@ public class Day25 {
         final Map<String, Set<String>> connected = new HashMap<>();
         for (final String line : data) {
             final String[] parts = line.split(": ");
-            final String key = parts[0];
+            final String parent = parts[0];
             final String[] children = parts[1].split(" ");
-            final Set<String> components = connected.get(key);
+            final Set<String> components = connected.get(parent);
             if (components != null) {
                 for (final String child : children) {
                     components.add(child);
                 }
             } else {
-                connected.put(key, new HashSet<>(Arrays.asList(children)));
+                connected.put(parent, new HashSet<>(Arrays.asList(children)));
             }
 
             for (final String child : children) {
                 final Set<String> childSet = connected.get(child);
                 if (childSet != null) {
-                    childSet.add(key);
+                    childSet.add(parent);
                 } else {
-                    connected.put(child, new HashSet<>(List.of(key)));
+                    connected.put(child, new HashSet<>(List.of(parent)));
                 }
             }
         }
@@ -51,18 +51,18 @@ public class Day25 {
         final Graph<String, DefaultEdge> g = new SimpleGraph<>(DefaultEdge.class);
         for (final String line : data) {
             final String[] parts = line.split(": ");
-            final String key = parts[0];
+            final String parent = parts[0];
             final String[] children = parts[1].split(" ");
 
-            if (!g.vertexSet().contains(key)) {
-                g.addVertex(key);
+            if (!g.vertexSet().contains(parent)) {
+                g.addVertex(parent);
             }
 
             for (final String child : children) {
                 if (!g.vertexSet().contains(child)) {
                     g.addVertex(child);
                 }
-                g.addEdge(key, child);
+                g.addEdge(parent, child);
             }
         }
 
