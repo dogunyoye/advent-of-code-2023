@@ -9,8 +9,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import org.jgrapht.Graph;
 import org.jgrapht.alg.StoerWagnerMinimumCut;
@@ -25,23 +27,7 @@ public class Day25 {
             final String[] parts = line.split(": ");
             final String parent = parts[0];
             final String[] children = parts[1].split(" ");
-            final Set<String> components = connected.get(parent);
-            if (components != null) {
-                for (final String child : children) {
-                    components.add(child);
-                }
-            } else {
-                connected.put(parent, new HashSet<>(Arrays.asList(children)));
-            }
-
-            for (final String child : children) {
-                final Set<String> childSet = connected.get(child);
-                if (childSet != null) {
-                    childSet.add(parent);
-                } else {
-                    connected.put(child, new HashSet<>(List.of(parent)));
-                }
-            }
+            connected.put(parent, new HashSet<>(Arrays.asList(children)));
         }
 
         return connected;
@@ -69,16 +55,18 @@ public class Day25 {
         return g;
     }
 
-    private List<List<String>> collectEdges(Map<String, Set<String>> connected) {
+    private List<List<String>> collectEdges(List<String> data) {
         final List<List<String>> edges = new ArrayList<>();
-        connected
-            .entrySet()
-            .forEach((e) -> {
-                for (final String child : e.getValue()) {
-                    edges.add(new ArrayList<String>(List.of(e.getKey(), child)));
-                }
-            });
-        
+        for (final String line : data) {
+            final String[] parts = line.split(": ");
+            final String parent = parts[0];
+            final String[] children = parts[1].split(" ");
+
+            for (final String child : children) {
+                edges.add(new ArrayList<String>(List.of(parent, child)));
+            }
+        }
+
         return edges;
     }
 
@@ -87,10 +75,27 @@ public class Day25 {
         connected
             .entrySet()
             .forEach((e) -> {
-                copy.put(e.getKey(), new HashSet<>(e.getValue().stream().toList()));
+                copy.put(new String(e.getKey()), new HashSet<>(e.getValue().stream().toList()));
             });
 
         return copy;
+    }
+
+    private Set<String> getConnected(String v, Map<String, Set<String>> connected) {
+        final Set<String> connectedNodes = new HashSet<>();
+        if (connected.containsKey(v)) {
+            connectedNodes.addAll(connected.get(v));
+        }
+
+        connectedNodes.addAll(
+            connected.entrySet()
+            .stream()
+            .filter((e) -> e.getValue().contains(v))
+            .map((e) -> e.getKey())
+            .collect(Collectors.toSet())
+        );
+
+        return connectedNodes;
     }
 
     private Set<String> dfs(Map<String, Set<String>> connected, String start) {
@@ -105,7 +110,7 @@ public class Day25 {
             final String current = stack.pop();
             if (!visited.contains(current)) {
                 visited.add(current);
-                for (final String child : connected.get(current)) {
+                for (final String child : getConnected(current, connected)) {
                     stack.push(child);
                     path.add(child);
                 }
@@ -119,18 +124,14 @@ public class Day25 {
 
         final List<String> allDisconnected = new ArrayList<>();
         for (final List<String> edge : edges) {
-            final Set<String> components0 = connected.get(edge.get(0));
-            components0.remove(edge.get(1));
-
-            final Set<String> components1 = connected.get(edge.get(1));
-            components1.remove(edge.get(0));
-
+            final Set<String> connectedNodes = connected.get(edge.get(0));
+            connectedNodes.remove(edge.get(1));
             allDisconnected.addAll(edge);
         }
 
         final Set<Set<String>> paths = new HashSet<>();
 
-        for (List<String> edge : edges) {
+        for (final List<String> edge : edges) {
             for (final String component : edge) {
                 final Set<String> path = dfs(connected, component);
                 paths.add(path);
@@ -143,11 +144,46 @@ public class Day25 {
         return paths;
     }
 
+    private Map<String, Set<String>> contract(Set<String> vertices, List<List<String>> edges) {
+        final Random rand = new Random();
+        final Map<String, Set<String>> verticesGroups = new HashMap<>();
+        vertices.forEach((v) -> {
+            verticesGroups.put(v, new HashSet<>(List.of(v)));
+        });
+
+        while (verticesGroups.size() > 2) {
+            final List<String> edge = edges.get(rand.nextInt(edges.size()));
+            final String from = edge.get(0);
+            final String to = edge.get(1);
+
+            final Set<String> fromGroup = verticesGroups.get(from);
+            final Set<String> toGroup = verticesGroups.get(to);
+            fromGroup.addAll(toGroup);
+
+            verticesGroups.remove(to);
+
+            edges.removeIf((e) -> (e.get(0).equals(to) && e.get(1).equals(from)) || (e.get(0).equals(from) && e.get(1).equals(to)));
+            
+            edges
+                .forEach((e) -> {
+                    if (e.get(0).equals(to)) {
+                        e.set(0, from);
+                    }
+
+                    if (e.get(1).equals(to)) {
+                        e.set(1, from);
+                    }
+                });
+        }
+
+        return verticesGroups;
+    }
+
     // Naive solution which checks all 3 cut pair combinations
     // works for the example but will take a very long time for the actual input
-    public int findProductOfDisconnectedComponentsNaive(List<String> data) {
+    public int findProductOfDisconnectedComponentsBruteForce(List<String> data) {
         final Map<String, Set<String>> connected = buildConnectedMap(data);
-        final List<List<String>> edges = collectEdges(connected);
+        final List<List<String>> edges = collectEdges(data);
 
         for (int i = 0; i < edges.size() - 2; i++) {
             for (int j = i + 1; j < edges.size() - 1; j++) {
@@ -169,15 +205,15 @@ public class Day25 {
     }
 
     /**
-     * https://en.wikipedia.org/wiki/Stoer%E2%80%93Wagner_algorithm
-     * 
-     * Uses an open source lib (https://jgrapht.org/) to build a graph
+     * {@link https://en.wikipedia.org/wiki/Stoer%E2%80%93Wagner_algorithm}
+     * <p>
+     * Uses an open source lib ({@link https://jgrapht.org/}) to build a graph
      * and perform a min cut (using the above algorithm).
-     * 
+     * <p>
      * The {@code minCut()} method returns the set of vertices on one half
      * of the min cut. Simply substract this value from the total number of
      * vertices to obtain the size of the other half.
-     * 
+     * <p>
      * Multiply these values together, job's a good'un
      */
     public int findProductOfDisconnectedComponents(List<String> data) {
@@ -188,7 +224,7 @@ public class Day25 {
     }
 
     /**
-     * Used Graphviz (https://graphviz.org/) to build a visual representation of
+     * Used Graphviz ({@link https://graphviz.org/}) to build a visual representation of
      * the network. From this, we can easily identify the 3 edges which need to
      * be severed in order to form 2 separate graphs.
      */
@@ -204,6 +240,27 @@ public class Day25 {
         }
 
         throw new RuntimeException("No solution found!");
+    }
+
+    /**
+     * Implementation of Karger's algorithm ({@link https://en.wikipedia.org/wiki/Karger%27s_algorithm})
+     * Non-deterministic algorithm as it takes random edges until we find a selection of grouped
+     * edges and nodes that fit our constraint (2 separate graphs/groups, 3 edges to cut). Once
+     * our constraint is met, we have our answer.
+     */
+    public int findProductOfDisconnectedComponentsKarger(List<String> data) {
+        final Map<String, Set<String>> connected = buildConnectedMap(data);
+
+        while (true) {
+            final List<List<String>> edges = collectEdges(data);
+            final Set<String> vertices = connected.keySet().stream().collect(Collectors.toSet());
+
+            final Map<String, Set<String>> groups = contract(vertices, edges);
+
+            if (groups.values().stream().allMatch((v) -> v.size() > 1) && edges.size() == 3) {
+                return groups.values().stream().mapToInt((v) -> v.size()).reduce(1, (a, b) -> a * b);
+            }
+        }
     }
     
     public static void main(String[] args) throws IOException {
