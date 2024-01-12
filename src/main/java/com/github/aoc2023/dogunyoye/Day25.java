@@ -40,14 +40,9 @@ public class Day25 {
             final String parent = parts[0];
             final String[] children = parts[1].split(" ");
 
-            if (!g.vertexSet().contains(parent)) {
-                g.addVertex(parent);
-            }
-
+            g.addVertex(parent);
             for (final String child : children) {
-                if (!g.vertexSet().contains(child)) {
-                    g.addVertex(child);
-                }
+                g.addVertex(child);
                 g.addEdge(parent, child);
             }
         }
@@ -121,7 +116,6 @@ public class Day25 {
     }
 
     private Set<Set<String>> checkAllComponentsAreDisconnected(Map<String, Set<String>> connected, List<List<String>> edges) {
-
         final List<String> allDisconnected = new ArrayList<>();
         for (final List<String> edge : edges) {
             final Set<String> connectedNodes = connected.get(edge.get(0));
