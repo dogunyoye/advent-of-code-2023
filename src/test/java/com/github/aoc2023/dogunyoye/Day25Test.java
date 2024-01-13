@@ -24,7 +24,12 @@ public class Day25Test {
     }
 
     @Test
-    public void testPartOneNaive() throws IOException {
+    public void testPartOneBruteForce() throws IOException {
         assertEquals(54, new Day25().findProductOfDisconnectedComponentsBruteForce(data));
+    }
+
+    @Test
+    public void testPartOneKarger() throws IOException {
+        assertEquals(54, new Day25().findProductOfDisconnectedComponentsKarger(data));
     }
 }

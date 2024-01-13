@@ -50,7 +50,23 @@ public class Day25 {
         return g;
     }
 
-    private List<List<String>> collectEdges(List<String> data) {
+    private Set<String> vertices(List<String> data) {
+        final Set<String> vertices = new HashSet<>();
+        for (final String line : data) {
+            final String[] parts = line.split(": ");
+            final String parent = parts[0];
+            final String[] children = parts[1].split(" ");
+
+            vertices.add(parent);
+            for (final String child : children) {
+                vertices.add(child);
+            }
+        }
+
+        return vertices;
+    }
+
+    private List<List<String>> edges(List<String> data) {
         final List<List<String>> edges = new ArrayList<>();
         for (final String line : data) {
             final String[] parts = line.split(": ");
@@ -177,7 +193,7 @@ public class Day25 {
     // works for the example but will take a very long time for the actual input
     public int findProductOfDisconnectedComponentsBruteForce(List<String> data) {
         final Map<String, Set<String>> connected = buildConnectedMap(data);
-        final List<List<String>> edges = collectEdges(data);
+        final List<List<String>> edges = edges(data);
 
         for (int i = 0; i < edges.size() - 2; i++) {
             for (int j = i + 1; j < edges.size() - 1; j++) {
@@ -243,11 +259,11 @@ public class Day25 {
      * our constraint is met, we have our answer.
      */
     public int findProductOfDisconnectedComponentsKarger(List<String> data) {
-        final Map<String, Set<String>> connected = buildConnectedMap(data);
+        Set<String> vertices = vertices(data);
 
         while (true) {
-            final List<List<String>> edges = collectEdges(data);
-            final Set<String> vertices = connected.keySet().stream().collect(Collectors.toSet());
+            final List<List<String>> edges = edges(data);
+            vertices = vertices.stream().collect(Collectors.toSet());
 
             final Map<String, Set<String>> groups = contract(vertices, edges);
 
@@ -259,6 +275,6 @@ public class Day25 {
     
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day25.txt"));
-        System.out.println("Part 1: " + new Day25().findProductOfDisconnectedComponents(data));
+        System.out.println("Part 1: " + new Day25().findProductOfDisconnectedComponentsKarger(data));
     }
 }
