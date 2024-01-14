@@ -69,53 +69,29 @@ public class Day05 {
         Iterator<String> lines = farmInfo.iterator();
 
         while (lines.hasNext()) {
-            String curr = lines.next();
-            if (curr.isEmpty()) {
+            final String currentLine = lines.next();
+            if (currentLine.isEmpty()) {
                 continue;
             }
 
-            if (curr.contains("seeds:")) {
-                final String[] parts = curr.split(" ");
+            if (currentLine.contains("seeds:")) {
+                final String[] parts = currentLine.split(" ");
                 for (int i = 1; i < parts.length; i++) {
                     seeds.add(Long.parseLong(parts[i]));
                 }
                 continue;
             }
 
-            if (curr.contains("seed-to-soil")) {
-                lines = processRecipe(lines, new Recipe(MapKey.SEED, MapKey.SOIL), recipes);
-                continue;
-            }
-
-            if (curr.contains("soil-to-fertilizer")) {
-                lines = processRecipe(lines, new Recipe(MapKey.SOIL, MapKey.FERTILISER), recipes);
-                continue;
-            }
-
-            if (curr.contains("fertilizer-to-water")) {
-                lines = processRecipe(lines, new Recipe(MapKey.FERTILISER, MapKey.WATER), recipes);
-                continue;
-            }
-
-            if (curr.contains("water-to-light")) {
-                lines = processRecipe(lines, new Recipe(MapKey.WATER, MapKey.LIGHT), recipes);
-                continue;
-            }
-
-            if (curr.contains("light-to-temperature")) {
-                lines = processRecipe(lines, new Recipe(MapKey.LIGHT, MapKey.TEMPERATURE), recipes);
-                continue;
-            }
-
-            if (curr.contains("temperature-to-humidity")) {
-                lines = processRecipe(lines, new Recipe(MapKey.TEMPERATURE, MapKey.HUMIDITY), recipes);
-                continue;
-            }
-
-            if (curr.contains("humidity-to-location")) {
-                lines = processRecipe(lines, new Recipe(MapKey.HUMIDITY, MapKey.LOCATION), recipes);
-                continue;
-            }
+            lines = switch(currentLine.split(" ")[0]) {
+                    case "seed-to-soil" -> processRecipe(lines, new Recipe(MapKey.SEED, MapKey.SOIL), recipes);
+                    case "soil-to-fertilizer" -> processRecipe(lines, new Recipe(MapKey.SOIL, MapKey.FERTILISER), recipes);
+                    case "fertilizer-to-water" -> processRecipe(lines, new Recipe(MapKey.FERTILISER, MapKey.WATER), recipes);
+                    case "water-to-light" -> processRecipe(lines, new Recipe(MapKey.WATER, MapKey.LIGHT), recipes);
+                    case "light-to-temperature" -> processRecipe(lines, new Recipe(MapKey.LIGHT, MapKey.TEMPERATURE), recipes);
+                    case "temperature-to-humidity" -> processRecipe(lines, new Recipe(MapKey.TEMPERATURE, MapKey.HUMIDITY), recipes);
+                    case "humidity-to-location" -> processRecipe(lines, new Recipe(MapKey.HUMIDITY, MapKey.LOCATION), recipes);
+                    default -> throw new RuntimeException("Unknown mapping");
+            };
         }
     
         return new FarmInfo(seeds, recipes);
