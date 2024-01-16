@@ -66,6 +66,12 @@ public class Day05 {
         private long length() {
             return this.length;
         }
+
+        @Override
+        public String toString() {
+            return "SeedRange [seedStart=" + seedStart + ", seedEnd=" + seedEnd + ", length=" + length + ", recipeIdx="
+                    + recipeIdx + "]";
+        }
     }
 
     private Iterator<String> processRecipe(Iterator<String> lines, Recipe recipe, Map<Recipe, List<Range>> recipes) {
@@ -162,11 +168,25 @@ public class Day05 {
                 for (final Range range : ranges) {
                     final long sourceStart = range.sourceStart();
                     final long sourceLimit = sourceStart + range.range();
+                    final long destinationStart = range.destinationStart();
+                    final long destinationLimit = destinationStart + range.range();
 
-                    // seed range can start in the source
-                    if (value >= sourceStart && value < sourceLimit) {
+                    if (value < sourceStart && sr.seedEnd() > sourceLimit) {
+                        queue.add(new SeedRange(value, sourceStart, sourceStart - value, i));
+                        queue.add(new SeedRange(sourceLimit, sr.seedEnd(), sr.seedEnd() - sourceLimit, i));
+                        sr.seedStart = destinationStart;
+                        sr.seedEnd = destinationLimit;
+                        break;
+                    }
+                    else if (value < sourceStart && sr.seedEnd() > sourceStart && sr.seedEnd() < sourceLimit) {
+                        queue.add(new SeedRange(value, sourceStart, sourceStart - value, i));
+                        final long diff = sr.seedEnd() - sourceStart;
+                        sr.seedStart = destinationStart;
+                        sr.seedEnd = destinationStart + diff;
+                        break;
+                    }
+                    else if (value >= sourceStart && value < sourceLimit) { // seed range can start in the source
                         final long toAdd = Math.abs(value - range.sourceStart());
-                        final long destinationStart = range.destinationStart();
 
                         // there is overlap
                         // we need to make a new range
@@ -187,6 +207,7 @@ public class Day05 {
                 }
             }
 
+            System.out.println(sr);
             result = Math.min(result, value);
         }
 
@@ -247,6 +268,6 @@ public class Day05 {
     public static void main(String[] args) throws IOException {
         final List<String> farmInfo = Files.readAllLines(Path.of("src/main/resources/Day05.txt"));
         System.out.println("Part 1: " + new Day05().findLowestLocationNumber(farmInfo));
-        System.out.println("Part 2: " + new Day05().findLowestLocationForSeedNumberRangeBruteForce(farmInfo));
+        System.out.println("Part 2: " + new Day05().findLowestLocationForSeedNumberRange(farmInfo));
     }
 }
