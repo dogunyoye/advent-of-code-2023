@@ -67,6 +67,10 @@ public class Day05 {
             return this.length;
         }
 
+        private int recipeIndex() {
+            return this.recipeIdx;
+        }
+
         @Override
         public String toString() {
             return "SeedRange [seedStart=" + seedStart + ", seedEnd=" + seedEnd + ", length=" + length + ", recipeIdx="
@@ -156,16 +160,15 @@ public class Day05 {
 
         long result = Long.MAX_VALUE;
         final Queue<SeedRange> queue = new ArrayDeque<>();
-
         queue.add(seedRange);
 
         while (!queue.isEmpty()) {
             final SeedRange sr = queue.poll();
-            long value = 0;
-            for (int i = sr.recipeIdx; i < ORDER.length; i++) {
-                value = sr.seedStart();
-                final List<Range> ranges = recipes.get(ORDER[i]);
-                for (final Range range : ranges) {
+            for (int i = sr.recipeIndex(); i < ORDER.length; i++) {
+                final long value = sr.seedStart();
+
+                for (final Range range : recipes.get(ORDER[i])) {
+
                     final long sourceStart = range.sourceStart();
                     final long sourceLimit = sourceStart + range.range();
                     final long destinationStart = range.destinationStart();
@@ -176,6 +179,7 @@ public class Day05 {
                         queue.add(new SeedRange(sourceLimit, sr.seedEnd(), sr.seedEnd() - sourceLimit, i));
                         sr.seedStart = destinationStart;
                         sr.seedEnd = destinationLimit;
+                        sr.length = sr.seedEnd - sr.seedStart;
                         break;
                     }
                     else if (value < sourceStart && sr.seedEnd() > sourceStart && sr.seedEnd() < sourceLimit) {
@@ -183,22 +187,21 @@ public class Day05 {
                         final long diff = sr.seedEnd() - sourceStart;
                         sr.seedStart = destinationStart;
                         sr.seedEnd = destinationStart + diff;
+                        sr.length = sr.seedEnd - sr.seedStart;
                         break;
                     }
                     else if (value >= sourceStart && value < sourceLimit) { // seed range can start in the source
-                        final long toAdd = Math.abs(value - range.sourceStart());
+                        final long offset = value - sourceStart;
+                        sr.seedStart = destinationStart + offset;
 
                         // there is overlap
                         // we need to make a new range
                         if (sr.seedEnd() > sourceLimit) {
-                            final long diff = sourceLimit - sr.seedStart();;
-                            sr.seedEnd = sr.seedStart + diff;
-
-                            final long length = sr.length() - diff;
-                            final long newSeedRangeStart = sr.seedEnd();
-                            queue.add(new SeedRange(newSeedRangeStart, newSeedRangeStart + length, length, i));
+                            final long length = sr.seedEnd() - sourceLimit;
+                            sr.seedEnd = destinationLimit;
+                            sr.length = sr.seedEnd - sr.seedStart;
+                            queue.add(new SeedRange(sourceLimit, sourceLimit + length, length, i));
                         } else {
-                            sr.seedStart = destinationStart + toAdd;
                             sr.seedEnd = sr.seedStart() + sr.length();
                         }
 
@@ -207,8 +210,7 @@ public class Day05 {
                 }
             }
 
-            System.out.println(sr);
-            result = Math.min(result, value);
+            result = Math.min(result, sr.seedStart());
         }
 
         return result;

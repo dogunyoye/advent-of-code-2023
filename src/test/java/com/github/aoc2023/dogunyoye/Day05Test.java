@@ -27,4 +27,9 @@ public class Day05Test {
     public void testPartTwo() throws IOException {
         assertEquals(46, new Day05().findLowestLocationForSeedNumberRangeBruteForce(recipes));
     }
+
+    @Test
+    public void testPartTwoOptimised() throws IOException {
+        assertEquals(46, new Day05().findLowestLocationForSeedNumberRange(recipes));
+    }
 }
