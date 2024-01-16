@@ -111,14 +111,14 @@ public class Day05 {
             }
 
             lines = switch(currentLine.split(" ")[0]) {
-                    case "seed-to-soil" -> processRecipe(lines, new Recipe(MapKey.SEED, MapKey.SOIL), recipes);
-                    case "soil-to-fertilizer" -> processRecipe(lines, new Recipe(MapKey.SOIL, MapKey.FERTILISER), recipes);
-                    case "fertilizer-to-water" -> processRecipe(lines, new Recipe(MapKey.FERTILISER, MapKey.WATER), recipes);
-                    case "water-to-light" -> processRecipe(lines, new Recipe(MapKey.WATER, MapKey.LIGHT), recipes);
-                    case "light-to-temperature" -> processRecipe(lines, new Recipe(MapKey.LIGHT, MapKey.TEMPERATURE), recipes);
-                    case "temperature-to-humidity" -> processRecipe(lines, new Recipe(MapKey.TEMPERATURE, MapKey.HUMIDITY), recipes);
-                    case "humidity-to-location" -> processRecipe(lines, new Recipe(MapKey.HUMIDITY, MapKey.LOCATION), recipes);
-                    default -> throw new RuntimeException("Unknown mapping");
+                case "seed-to-soil" -> processRecipe(lines, new Recipe(MapKey.SEED, MapKey.SOIL), recipes);
+                case "soil-to-fertilizer" -> processRecipe(lines, new Recipe(MapKey.SOIL, MapKey.FERTILISER), recipes);
+                case "fertilizer-to-water" -> processRecipe(lines, new Recipe(MapKey.FERTILISER, MapKey.WATER), recipes);
+                case "water-to-light" -> processRecipe(lines, new Recipe(MapKey.WATER, MapKey.LIGHT), recipes);
+                case "light-to-temperature" -> processRecipe(lines, new Recipe(MapKey.LIGHT, MapKey.TEMPERATURE), recipes);
+                case "temperature-to-humidity" -> processRecipe(lines, new Recipe(MapKey.TEMPERATURE, MapKey.HUMIDITY), recipes);
+                case "humidity-to-location" -> processRecipe(lines, new Recipe(MapKey.HUMIDITY, MapKey.LOCATION), recipes);
+                default -> throw new RuntimeException("Unknown mapping");
             };
         }
     
