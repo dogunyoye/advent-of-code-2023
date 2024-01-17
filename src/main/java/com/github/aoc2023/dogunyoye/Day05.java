@@ -79,10 +79,10 @@ public class Day05 {
     }
 
     private Iterator<String> processRecipe(Iterator<String> lines, Recipe recipe, Map<Recipe, List<Range>> recipes) {
-        String curr = lines.next();
+        String currentLine = lines.next();
         final List<Range> ranges = new ArrayList<>();
-        while (!curr.isEmpty()) {
-            final String[] parts = curr.split(" ");
+        while (!currentLine.isEmpty()) {
+            final String[] parts = currentLine.split(" ");
             final long destination = Long.parseLong(parts[0]);
             final long source = Long.parseLong(parts[1]);
             final long range = Long.parseLong(parts[2]);
@@ -93,7 +93,7 @@ public class Day05 {
                 break;
             }
 
-            curr = lines.next();
+            currentLine = lines.next();
         }
 
         recipes.put(recipe, ranges);
@@ -136,7 +136,6 @@ public class Day05 {
     }
 
     private long processSeed(long seed, Map<Recipe, List<Range>> recipes) {
-
         long value = seed;
         for (final Recipe recipe : ORDER) {
             final List<Range> ranges = recipes.get(recipe);
@@ -157,8 +156,7 @@ public class Day05 {
     }
 
     private long processSeedRange(SeedRange seedRange, Map<Recipe, List<Range>> recipes) {
-
-        long result = Long.MAX_VALUE;
+        long lowestLocation = Long.MAX_VALUE;
         final Queue<SeedRange> queue = new ArrayDeque<>();
         queue.add(seedRange);
 
@@ -182,7 +180,8 @@ public class Day05 {
                         sr.length = sr.seedEnd - sr.seedStart;
                         break;
                     }
-                    else if (value < sourceStart && sr.seedEnd() > sourceStart && sr.seedEnd() < sourceLimit) {
+                    
+                    if (value < sourceStart && sr.seedEnd() > sourceStart && sr.seedEnd() < sourceLimit) {
                         queue.add(new SeedRange(value, sourceStart, sourceStart - value, i));
                         final long diff = sr.seedEnd() - sourceStart;
                         sr.seedStart = destinationStart;
@@ -190,7 +189,9 @@ public class Day05 {
                         sr.length = sr.seedEnd - sr.seedStart;
                         break;
                     }
-                    else if (value >= sourceStart && value < sourceLimit) { // seed range can start in the source
+                    
+                    // seed range can start in the source
+                    if (value >= sourceStart && value < sourceLimit) {
                         final long offset = value - sourceStart;
                         sr.seedStart = destinationStart + offset;
 
@@ -210,10 +211,10 @@ public class Day05 {
                 }
             }
 
-            result = Math.min(result, sr.seedStart());
+            lowestLocation = Math.min(lowestLocation, sr.seedStart());
         }
 
-        return result;
+        return lowestLocation;
     }
 
     public long findLowestLocationNumber(List<String> info) {
@@ -230,7 +231,7 @@ public class Day05 {
         final FarmInfo farmInfo = createFarmInfo(info);
         final List<Long> seeds = farmInfo.seeds();
 
-        long min = Long.MAX_VALUE;
+        long lowestLocation = Long.MAX_VALUE;
 
         for (int i = 0; i < seeds.size(); i+=2) {
             final long seed = seeds.get(i);
@@ -244,27 +245,27 @@ public class Day05 {
                     .min()
                     .getAsLong();
 
-            min = Math.min(location, min);
+            lowestLocation = Math.min(location, lowestLocation);
         }
 
-        return min;
+        return lowestLocation;
     }
 
     public long findLowestLocationForSeedNumberRange(List<String> info) {
         final FarmInfo farmInfo = createFarmInfo(info);
         final List<Long> seeds = farmInfo.seeds();
 
-        long min = Long.MAX_VALUE;
+        long lowestLocation = Long.MAX_VALUE;
 
         for (int i = 0; i < seeds.size(); i+=2) {
             final long seed = seeds.get(i);
             final long length = seeds.get(i+1);
 
             final SeedRange sr = new SeedRange(seed, seed + length, length, 0);
-            min = Math.min(min, processSeedRange(sr, farmInfo.recipes()));
+            lowestLocation = Math.min(lowestLocation, processSeedRange(sr, farmInfo.recipes()));
         }
 
-        return min;
+        return lowestLocation;
     }
 
     public static void main(String[] args) throws IOException {
