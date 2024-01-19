@@ -24,7 +24,12 @@ public class Day06Test {
     }
 
     @Test
+    public void testPartTwoBruteForce() throws IOException {
+        assertEquals(71503, new Day06().findNumberOfWaysToBeatRecordBruteForce(data));
+    }
+
+    @Test
     public void testPartTwo() throws IOException {
-        assertEquals(71503, new Day06().calculateMarginOfErrorPart2(data));
+        assertEquals(71503, new Day06().findNumberOfWaysToBeatRecord(data));
     }
 }
