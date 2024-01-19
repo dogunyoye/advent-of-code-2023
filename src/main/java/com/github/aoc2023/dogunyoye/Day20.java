@@ -213,6 +213,27 @@ public class Day20 {
         }
     }
 
+    /**
+     * Here at Desert Machine Headquarters, there is a module with a single button on it called, aptly, the button module.
+     * When you push the button, a single low pulse is sent directly to the broadcaster module.
+     */
+    private class Button extends Module {
+
+        private final Map<String, Module> modules;
+
+        private Button(String name, Map<String, Module> modules) {
+            super(name, null, null);
+            this.modules = modules;
+        }
+
+        @Override
+        PulseSendResult sendPulse() {
+            final Module broadcaster = modules.get("broadcaster");
+            broadcaster.putPulse(new Pulse(getName(), new BitSet(1)));
+            return new PulseSendResult(1, 0, new ArrayDeque<>(List.of("broadcaster")));
+        }
+    }
+
     private class NoOp extends Module {
 
         private NoOp() {
@@ -229,6 +250,8 @@ public class Day20 {
     private Map<String, Module> buildModules(List<String> data) {
         final Map<String, Module> modules = new HashMap<>();
         final Map<String, List<String>> receivingFrom = new HashMap<>();
+
+        modules.put("button", new Button("button", modules));
 
         for (int i = 0; i < data.size(); i++) {
             final String[] parts = data.get(i).split(" -> ");
@@ -291,7 +314,7 @@ public class Day20 {
         long highPulses = 0;
 
         while (buttonPushes != 0) {
-            workQueue.add("broadcaster");
+            workQueue.add("button");
             while (!workQueue.isEmpty()) {
                 final String moduleName = workQueue.poll();
                 final Module m = modules.get(moduleName);
@@ -303,7 +326,7 @@ public class Day20 {
             --buttonPushes;
         }
 
-        return (lowPulses + buttonPushes) * highPulses;
+        return lowPulses * highPulses;
     }
 
     private long gcd(long x, long y) {
