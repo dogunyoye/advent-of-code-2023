@@ -303,7 +303,7 @@ public class Day20 {
             --buttonPushes;
         }
 
-        return (lowPulses + 1000) * highPulses;
+        return (lowPulses + buttonPushes) * highPulses;
     }
 
     private long gcd(long x, long y) {
