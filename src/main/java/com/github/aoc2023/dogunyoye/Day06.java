@@ -125,9 +125,6 @@ public class Day06 {
         final double x0 = (-b + Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
         final double x1 = (-b - Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
 
-        System.out.println(x0);
-        System.out.println(x1);
-
         return ((long)(Math.floor(x0) - Math.ceil(x1)) + 1);
     }
     
