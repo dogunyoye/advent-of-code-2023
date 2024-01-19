@@ -45,13 +45,11 @@ public class Day05 {
     private class SeedRange {
         private long seedStart;
         private long seedEnd;
-        private long length;
         private final int recipeIdx;
 
-        private SeedRange(long seedStart, long seedEnd, long length, int recipeIdx) {
+        private SeedRange(long seedStart, long seedEnd, int recipeIdx) {
             this.seedStart = seedStart;
             this.seedEnd = seedEnd;
-            this.length = length;
             this.recipeIdx = recipeIdx;
         }
 
@@ -64,7 +62,7 @@ public class Day05 {
         }
 
         private long length() {
-            return this.length;
+            return this.seedEnd - this.seedStart;
         }
 
         private int recipeIndex() {
@@ -73,7 +71,7 @@ public class Day05 {
 
         @Override
         public String toString() {
-            return "SeedRange [seedStart=" + seedStart + ", seedEnd=" + seedEnd + ", length=" + length + ", recipeIdx="
+            return "SeedRange [seedStart=" + seedStart + ", seedEnd=" + seedEnd + ", recipeIdx="
                     + recipeIdx + "]";
         }
     }
@@ -173,25 +171,24 @@ public class Day05 {
                     final long destinationLimit = destinationStart + range.range();
 
                     if (value < sourceStart && sr.seedEnd() > sourceLimit) {
-                        queue.add(new SeedRange(value, sourceStart, sourceStart - value, i));
-                        queue.add(new SeedRange(sourceLimit, sr.seedEnd(), sr.seedEnd() - sourceLimit, i));
+                        queue.add(new SeedRange(value, sourceStart, i));
+                        queue.add(new SeedRange(sourceLimit, sr.seedEnd(), i));
                         sr.seedStart = destinationStart;
                         sr.seedEnd = destinationLimit;
-                        sr.length = sr.seedEnd - sr.seedStart;
                         break;
                     }
                     
                     if (value < sourceStart && sr.seedEnd() > sourceStart && sr.seedEnd() < sourceLimit) {
-                        queue.add(new SeedRange(value, sourceStart, sourceStart - value, i));
+                        queue.add(new SeedRange(value, sourceStart, i));
                         final long diff = sr.seedEnd() - sourceStart;
                         sr.seedStart = destinationStart;
                         sr.seedEnd = destinationStart + diff;
-                        sr.length = sr.seedEnd - sr.seedStart;
                         break;
                     }
                     
                     // seed range can start in the source
                     if (value >= sourceStart && value < sourceLimit) {
+                        final long oldLength = sr.length();
                         final long offset = value - sourceStart;
                         sr.seedStart = destinationStart + offset;
 
@@ -200,10 +197,9 @@ public class Day05 {
                         if (sr.seedEnd() > sourceLimit) {
                             final long length = sr.seedEnd() - sourceLimit;
                             sr.seedEnd = destinationLimit;
-                            sr.length = sr.seedEnd - sr.seedStart;
-                            queue.add(new SeedRange(sourceLimit, sourceLimit + length, length, i));
+                            queue.add(new SeedRange(sourceLimit, sourceLimit + length, i));
                         } else {
-                            sr.seedEnd = sr.seedStart() + sr.length();
+                            sr.seedEnd = sr.seedStart() + oldLength;
                         }
 
                         break;
@@ -261,7 +257,7 @@ public class Day05 {
             final long seed = seeds.get(i);
             final long length = seeds.get(i+1);
 
-            final SeedRange sr = new SeedRange(seed, seed + length, length, 0);
+            final SeedRange sr = new SeedRange(seed, seed + length, 0);
             lowestLocation = Math.min(lowestLocation, processSeedRange(sr, farmInfo.recipes()));
         }
 
