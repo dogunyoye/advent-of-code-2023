@@ -236,7 +236,7 @@ public class Day25 {
     /**
      * Used Graphviz ({@link https://graphviz.org/}) to build a visual representation of
      * the network. From this, we can easily identify the 3 edges which need to
-     * be severed in order to form 2 separate graphs.
+     * be severed to form 2 separate graphs.
      */
     public int findProductOfDisconnectedComponentsGraphViz(List<String> data) {
         final Map<String, Set<String>> connected = buildConnectedMap(data);

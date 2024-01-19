@@ -316,7 +316,7 @@ public class Day23 {
      * we can start measuring distances between them.
      *
      * The aim of the game is to keep the search space as minimal as possible. So we must
-     * only find the distance between points of interest, which *does not* take a path
+     * only find the distance between points of interest, which *do not* take a path
      * through another point of interest.
      *
      * The resulting map is effectively a graph of connected nodes, heavily pruned from the

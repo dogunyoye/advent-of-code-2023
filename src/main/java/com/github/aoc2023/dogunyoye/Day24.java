@@ -64,7 +64,7 @@ public class Day24 {
             return null;
         }
 
-        // check x and y, if either are in hailstone A or B's past
+        // check x to see if the position is in hailstone A or B's past
         if (x < h.position().x() && h.velocity().xVel() > 0 ||
             x > h.position().x() && h.velocity().xVel() < 0 ||
             x < next.position().x() && next.velocity().xVel() > 0 ||
