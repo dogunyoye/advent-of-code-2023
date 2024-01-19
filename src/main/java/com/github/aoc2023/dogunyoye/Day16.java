@@ -19,14 +19,14 @@ public class Day16 {
 
     private record Position(int i, int j) { }
 
-    private boolean isBeamOutOfBounds(Beam beam, char[][] map) {
+    private static boolean isBeamOutOfBounds(Beam beam, char[][] map) {
         final int mapDepth = map.length;
         final int mapLength = map[0].length;
 
         return beam.i < 0 || beam.i >= mapDepth || beam.j < 0 || beam.j >= mapLength;
     }
 
-    private boolean hasBeamsInBounds(List<Beam> beams, char[][] map) {
+    private static boolean hasBeamsInBounds(List<Beam> beams, char[][] map) {
         for (final Beam beam : beams) {
             if (!isBeamOutOfBounds(beam, map)) {
                 return true;
@@ -36,7 +36,7 @@ public class Day16 {
         return false;
     }
 
-    private class Beam {
+    private static class Beam {
         private int i;
         private int j;
         private Direction direction;
@@ -90,7 +90,7 @@ public class Day16 {
         return map;
     }
 
-    private int traverseContraption(char[][] map, Beam start) {
+    private static int traverseContraption(char[][] map, Beam start) {
         List<Beam> beams = new ArrayList<>();
         beams.add(start);
 
@@ -215,30 +215,35 @@ public class Day16 {
     // takes ages
     // TODO: Optimise heavily
     public int findMaxNumberOfEnergisedTiles(List<String> data) {
-        final List<Integer> energised = new ArrayList<>();
         final char[][] map = buildMap(data);
+        final List<Beam> beams = new ArrayList<>();
 
         // top row
         for (int i = 0; i < map[0].length; i++) {
-            energised.add(traverseContraption(map, new Beam(0, i, Direction.SOUTH)));
+            beams.add(new Beam(0, i, Direction.SOUTH));
         }
 
         // right most column
         for (int i = 0; i < map.length; i++) {
-            energised.add(traverseContraption(map, new Beam(i, map[0].length - 1, Direction.WEST)));
+            beams.add(new Beam(i, map[0].length - 1, Direction.WEST));
         }
 
         // bottom row
         for (int i = 0; i < map[0].length; i++) {
-            energised.add(traverseContraption(map, new Beam(map.length - 1, i, Direction.NORTH)));
+            beams.add(new Beam(map.length - 1, i, Direction.NORTH));
         }
 
         // left most column
         for (int i = 0; i < map.length; i++) {
-            energised.add(traverseContraption(map, new Beam(i, 0, Direction.EAST)));
+            beams.add(new Beam(i, 0, Direction.EAST));
         }
 
-        return energised.stream().max(Integer::compareTo).get();
+        return beams
+                .stream()
+                .parallel()
+                .map((b) -> Day16.traverseContraption(map, b))
+                .max(Integer::compareTo)
+                .get();
     }
     
     public static void main(String[] args) throws IOException {
