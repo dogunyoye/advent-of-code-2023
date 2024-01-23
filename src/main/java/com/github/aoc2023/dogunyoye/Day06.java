@@ -85,9 +85,11 @@ public class Day06 {
      * <p>
      * {@code distance = speed * time}
      * <p>
-     * - The speed is equal to however long we hold the button for
-     * - The time is however long we have left after holding the button i.e the difference
-     * between the duration of the race and the speed.
+     * <ul>
+     * <li>The speed is equal to however long we hold the button for.</li>
+     * <li>The time is however long we have left after holding the button i.e the difference
+     * between the duration of the race and the speed.</li>
+     * </ul>
      * <p>
      * With this knowledge we can form a quadratic equation:
      * <p>
