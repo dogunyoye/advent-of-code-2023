@@ -125,8 +125,8 @@ public class Day18 {
         int perimeter = 0;
         final List<Position> corners = findCorners(instructions);
         for (int i = 0; i < corners.size() - 1; i++) {
-            Position first = corners.get(i);
-            Position second = corners.get(i+1);
+            final Position first = corners.get(i);
+            final Position second = corners.get(i+1);
             perimeter += manhattanDistance(first, second);
         }
 
