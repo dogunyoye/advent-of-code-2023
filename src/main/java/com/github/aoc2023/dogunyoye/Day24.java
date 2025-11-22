@@ -119,63 +119,57 @@ public class Day24 {
 
     private Set<Long> intersectsWithNewVelocityXY(List<Hail> hailstones, int x, int y) {
         final Set<Long> xy = new HashSet<>();
-        final int toCheck = 0;
+        final Hail h = hailstones.get(0);
 
-        for (int i = 0; i <= toCheck; i++) {
-            final Hail h = hailstones.get(i);
-            for (int j = i + 1; j < 5; j++) {
-                final Velocity newV = new Velocity(h.velocity().xVel - x, h.velocity().yVel() - y, 0);
+        for (int i = 1; i < 5; i++) {
+            final Velocity newV = new Velocity(h.velocity().xVel - x, h.velocity().yVel() - y, 0);
 
-                final Hail nextH = hailstones.get(j);
-                final Velocity nextHNewV = new Velocity(nextH.velocity().xVel - x, nextH.velocity().yVel() - y, 0);
+            final Hail nextH = hailstones.get(i);
+            final Velocity nextHNewV = new Velocity(nextH.velocity().xVel - x, nextH.velocity().yVel() - y, 0);
 
-                final Hail h0 = new Hail(h.position(), newV);
-                final Hail h1 = new Hail(nextH.position(), nextHNewV);
+            final Hail h0 = new Hail(h.position(), newV);
+            final Hail h1 = new Hail(nextH.position(), nextHNewV);
 
-                final long[] intersection = intersectsPart2(h0, h1);
-                if (intersection == null) {
-                    return null;
-                }
+            final long[] intersection = intersectsPart2(h0, h1);
+            if (intersection == null) {
+                return null;
+            }
 
-                if (Double.isNaN(intersection[0]) || Double.isNaN(intersection[1])) {
-                    continue;
-                }
+            if (Double.isNaN(intersection[0]) || Double.isNaN(intersection[1])) {
+                continue;
+            }
 
-                xy.add(intersection[0]);
-                xy.add(intersection[1]);
-            } 
-        }
+            xy.add(intersection[0]);
+            xy.add(intersection[1]);
+        } 
 
         return xy.size() == 2 ? xy : null;
     }
 
     private Set<Long> intersectsWithNewVelocityXZ(List<Hail> hailstones, int x, int z) {
         final Set<Long> xz = new HashSet<>();
-        final int toCheck = 0;
+        final Hail h = hailstones.get(0);
 
-        for (int i = 0; i <= toCheck; i++) {
-            final Hail h = hailstones.get(i);
-            for (int j = i + 1; j < 5; j++) {
-                final Velocity newV = new Velocity(h.velocity().xVel - x, h.velocity().zVel() - z, 0);
+        for (int i = 1; i < 5; i++) {
+            final Velocity newV = new Velocity(h.velocity().xVel - x, h.velocity().zVel() - z, 0);
 
-                final Hail nextH = hailstones.get(j);
-                final Velocity nextHNewV = new Velocity(nextH.velocity().xVel - x, nextH.velocity().zVel() - z, 0);
+            final Hail nextH = hailstones.get(i);
+            final Velocity nextHNewV = new Velocity(nextH.velocity().xVel - x, nextH.velocity().zVel() - z, 0);
 
-                final Hail h0 = new Hail(new Position(h.position.x(), h.position.z(), 0), newV);
-                final Hail h1 = new Hail(new Position(nextH.position.x(), nextH.position().z(), 0), nextHNewV);
+            final Hail h0 = new Hail(new Position(h.position.x(), h.position.z(), 0), newV);
+            final Hail h1 = new Hail(new Position(nextH.position.x(), nextH.position().z(), 0), nextHNewV);
 
-                final long[] intersection = intersectsPart2(h0, h1);
-                if (intersection == null) {
-                    return null;
-                }
+            final long[] intersection = intersectsPart2(h0, h1);
+            if (intersection == null) {
+                return null;
+            }
 
-                if (Double.isNaN(intersection[0]) || Double.isNaN(intersection[1])) {
-                    continue;
-                }
+            if (Double.isNaN(intersection[0]) || Double.isNaN(intersection[1])) {
+                continue;
+            }
 
-                xz.add(intersection[0]);
-                xz.add(intersection[1]);
-            } 
+            xz.add(intersection[0]);
+            xz.add(intersection[1]);
         }
 
         return xz.size() == 2 ? xz : null;
