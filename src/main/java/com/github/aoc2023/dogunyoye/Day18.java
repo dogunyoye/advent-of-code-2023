@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Advent of Code 2023, Day 18. */
 public class Day18 {
 
     private record Position(long i, long j) { }
@@ -54,7 +55,7 @@ public class Day18 {
             instructions.add(new Instruction(direction, metres, hexColour));
         }
 
-        return instructions; 
+        return instructions;
     }
 
     private long manhattanDistance(Position first, Position second) {
@@ -112,11 +113,11 @@ public class Day18 {
         int j = length - 1;
         for (int i = 0; i < length; i++) {
             area += (xs.get(j) + xs.get(i)) * (ys.get(j) - ys.get(i));
-                
+
             // j is previous vertex to i
-            j = i; 
+            j = i;
         }
-        
+
         // Return absolute value
         return Math.abs(area) / 2;
     }
@@ -142,7 +143,7 @@ public class Day18 {
         final List<Instruction> instructions = createInstructionsListPart2(data);
         return findArea(instructions);
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day18.txt"));
         System.out.println("Part 1: " + new Day18().findDigPlanArea(data));

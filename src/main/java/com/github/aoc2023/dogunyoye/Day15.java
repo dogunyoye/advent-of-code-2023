@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+/** Advent of Code 2023, Day 15. */
 public class Day15 {
 
     enum Operation {
@@ -64,7 +65,7 @@ public class Day15 {
         }
     }
 
-    private record Box(int id, LinkedList<Lens> values) { 
+    private record Box(int id, LinkedList<Lens> values) {
         private void put(Lens lens) {
             this.values.add(lens);
         }
@@ -105,7 +106,7 @@ public class Day15 {
         Box box = boxes[boxIdx];
 
         switch(lens.op()) {
-        
+
         case Operation.PUT:
             if (box == null) {
                 boxes[boxIdx] = new Box(boxIdx, new LinkedList<>());
@@ -120,7 +121,7 @@ public class Day15 {
             }
 
             break;
-        
+
         case Operation.REMOVE:
             if (box == null) {
                 return;
@@ -129,12 +130,12 @@ public class Day15 {
             box.remove(lens);
 
             break;
-        
+
         default:
             throw new RuntimeException("Unknown operation: " + lens.op());
         }
     }
-    
+
     private List<String> getSteps(List<String> data) {
         return Arrays.stream(data.get(0).split(",")).toList();
     }

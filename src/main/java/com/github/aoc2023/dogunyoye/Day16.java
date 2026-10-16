@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/** Advent of Code 2023, Day 16. */
 public class Day16 {
 
     enum Direction {
@@ -41,7 +42,7 @@ public class Day16 {
         private int j;
         private Direction direction;
         private boolean outOfBounds;
-        
+
         private Beam(int i, int j, Direction direction) {
             this.i = i;
             this.j = j;
@@ -55,7 +56,7 @@ public class Day16 {
             case Direction.NORTH:
                 --this.i;
                 break;
-            
+
             case Direction.EAST:
                 ++this.j;
                 break;
@@ -245,7 +246,7 @@ public class Day16 {
                 .max(Integer::compareTo)
                 .get();
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day16.txt"));
         System.out.println("Part 1: " + new Day16().findNumberOfEnergisedTiles(data));

@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+/** Advent of Code 2023, Day 22. */
 public class Day22 {
 
     private class BrickComparator implements Comparator<Brick> {
@@ -26,11 +27,9 @@ public class Day22 {
         }
     }
 
-    private static int id = 0;
-    
     private record Position(int x, int y, int z) { }
 
-    private record Brick(int id, Position[] faces, List<Position> brickPoints, boolean isVertical) { 
+    private record Brick(int id, Position[] faces, List<Position> brickPoints, boolean isVertical) {
         private void setBrickPoints(List<Position> newBrickPoints) {
             this.brickPoints.clear();
             this.brickPoints.addAll(new ArrayList<>(newBrickPoints));
@@ -42,7 +41,7 @@ public class Day22 {
         return new Position(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
     }
 
-    private static Brick createBrick(String line) {
+    private static Brick createBrick(String line, int id) {
         final String[] parts = line.split("~");
         final Position[] faces = new Position[]{createPosition(parts[0]), createPosition(parts[1])};
         final List<Position> points = new ArrayList<>();
@@ -56,16 +55,18 @@ public class Day22 {
         }
 
         final boolean isVertical = faces[0].z() != faces[1].z();
-        return new Brick(id++, faces, points, isVertical);
+        return new Brick(id, faces, points, isVertical);
     }
 
     private List<Brick> createBricks(List<String> data) {
-        final List<Brick> bricks = new ArrayList<>(data.stream().map(Day22::createBrick).toList());
+        final List<Brick> bricks = new ArrayList<>();
+        for (int i = 0; i < data.size(); i++) {
+            bricks.add(createBrick(data.get(i), i));
+        }
         // sort the list from lowest bricks (to the ground)
         // to highest. This is so we drop the bricks in the
         // correct order (one by one, tetris style)
         bricks.sort(new BrickComparator());
-        id = 0;
         return bricks;
     }
 
@@ -183,7 +184,7 @@ public class Day22 {
             } else {
                 // Brick hasn't moved, just add its positions
                 // back to the set of positions
-                allBrickPoints.addAll(new ArrayList<>(current)); 
+                allBrickPoints.addAll(new ArrayList<>(current));
             }
         }
 
@@ -307,7 +308,7 @@ public class Day22 {
         final Map<Brick, Set<Brick>> supportMap = buildSupportMap(bricks);
         final Set<Brick> nonDisintegratedBricks = findNonDisintegratedBricks(supportMap);
         return performChainReaction(nonDisintegratedBricks, supportMap);
-    } 
+    }
 
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day22.txt"));

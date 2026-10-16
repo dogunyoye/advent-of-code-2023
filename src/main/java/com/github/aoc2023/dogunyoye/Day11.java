@@ -8,13 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/** Advent of Code 2023, Day 11. */
 public class Day11 {
 
     private class Position {
 
         private long i;
         private long j;
-        
+
         Position(long i, long j) {
             this.i = i;
             this.j = j;
@@ -238,7 +239,7 @@ public class Day11 {
 
         return sum;
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day11.txt"));
         final List<String> data2 = Files.readAllLines(Path.of("src/main/resources/Day11.txt"));

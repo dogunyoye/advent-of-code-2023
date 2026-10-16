@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.stream.LongStream;
 
+/** Advent of Code 2023, Day 5. */
 public class Day05 {
 
     enum MapKey {
@@ -97,7 +98,7 @@ public class Day05 {
         recipes.put(recipe, ranges);
         return lines;
     }
-    
+
     private FarmInfo createFarmInfo(List<String> farmInfo) {
         final List<Long> seeds = new ArrayList<>();
         final Map<Recipe, List<Range>> recipes = new HashMap<>();
@@ -129,7 +130,7 @@ public class Day05 {
                 default -> throw new RuntimeException("Unknown mapping");
             };
         }
-    
+
         return new FarmInfo(seeds, recipes);
     }
 
@@ -177,7 +178,7 @@ public class Day05 {
                         sr.seedEnd = destinationLimit;
                         break;
                     }
-                    
+
                     if (value < sourceStart && sr.seedEnd() > sourceStart && sr.seedEnd() < sourceLimit) {
                         queue.add(new SeedRange(value, sourceStart, i));
                         final long diff = sr.seedEnd() - sourceStart;
@@ -185,7 +186,7 @@ public class Day05 {
                         sr.seedEnd = destinationStart + diff;
                         break;
                     }
-                    
+
                     // seed range can start in the source
                     if (value >= sourceStart && value < sourceLimit) {
                         final long oldLength = sr.length();
@@ -217,7 +218,7 @@ public class Day05 {
         final FarmInfo farmInfo = createFarmInfo(info);
         return
             farmInfo.seeds().stream()
-                .map(seed -> new Day05().processSeed(seed, farmInfo.recipes()))
+                .map(seed -> processSeed(seed, farmInfo.recipes()))
                 .mapToLong(location -> location)
                 .min()
                 .getAsLong();

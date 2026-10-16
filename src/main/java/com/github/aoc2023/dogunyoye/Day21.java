@@ -11,11 +11,12 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+/** Advent of Code 2023, Day 21. */
 public class Day21 {
 
     private record Position(int i, int j) { }
 
-    private record State(Position pos, int steps, List<Position> neighbours) { 
+    private record State(Position pos, int steps, List<Position> neighbours) {
         private State(Position pos, int steps) {
             this(pos, steps, new ArrayList<>(
                 List.of(
@@ -174,7 +175,7 @@ public class Day21 {
 
         return (a * (long)Math.pow(n, 2)) + (b * n) + c;
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day21.txt"));
         System.out.println("Part 1: " + new Day21().findPossibleGardenPlotsAfter64Steps(data));

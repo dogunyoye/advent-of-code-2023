@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/** Advent of Code 2023, Day 3. */
 public class Day03 {
 
     private record Position (int i, int j) {
@@ -29,7 +30,7 @@ public class Day03 {
                 neighbours.stream()
                     .filter((pos) -> {
                         // filter out any out of bounds positions
-                        return pos.i >= 0 && pos.i < depth && pos.j >= 0 && pos.j < length;  
+                        return pos.i >= 0 && pos.i < depth && pos.j >= 0 && pos.j < length;
                     }).toList();
         }
     }
@@ -41,7 +42,7 @@ public class Day03 {
         final int mapDepth = schematic.size();
         final char[][] engineSchematic = new char[mapDepth][mapLength];
         final List<Position> symbolPositions = new ArrayList<>();
-        
+
         for (int i = 0; i < mapDepth; i++) {
             for (int j = 0; j < mapLength; j++) {
                 final char c = schematic.get(i).charAt(j);
@@ -100,7 +101,7 @@ public class Day03 {
                     .mapToInt(number -> number)
                     .sum();
         }
-        
+
         return sum;
     }
 
@@ -119,7 +120,7 @@ public class Day03 {
                         .map(pos -> Day03.completeNumber(engineSchematic, pos, mapped))
                         .filter(number -> number != 0)
                         .toList();
-                
+
                 if (numbers.size() == 2) {
                     sum += numbers.get(0) * numbers.get(1);
                 }
@@ -128,7 +129,7 @@ public class Day03 {
 
         return sum;
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> schematic = Files.readAllLines(Path.of("src/main/resources/Day03.txt"));
         System.out.println("Part 1: " + new Day03().sumOfAllPartNumbers(schematic));

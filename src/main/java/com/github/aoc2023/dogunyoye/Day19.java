@@ -13,6 +13,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/** Advent of Code 2023, Day 19. */
 public class Day19 {
 
     private enum WorkflowParams {
@@ -311,7 +312,7 @@ public class Day19 {
                     r += findApprovedCombos(workflows, x, m, a, s, p.result());
                     continue;
                 }
-                
+
                 final int testNumber = p.testNumber();
                 final String result = p.result();
                 final Range newRange;
@@ -361,7 +362,7 @@ public class Day19 {
 
         return findApprovedCombos(workflows, xRange, mRange, aRange, sRange, "in");
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day19.txt"));
         System.out.println("Part 1: " + new Day19().findSumOfAcceptedParts(data));

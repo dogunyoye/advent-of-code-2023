@@ -26,5 +26,5 @@ public class Day18Test {
     @Test
     public void testPartTwo() throws IOException {
         assertEquals(952408144115L, new Day18().findDigPlanAreaPart2(data));
-    }   
+    }
 }

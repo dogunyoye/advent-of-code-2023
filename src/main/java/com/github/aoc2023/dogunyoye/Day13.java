@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+/** Advent of Code 2023, Day 13. */
 public class Day13 {
 
     private record Note(int id, List<String> rows, List<String> columns, boolean cache) { }
@@ -264,7 +265,7 @@ public class Day13 {
 
         return leftColumns + (100 * rowsAbove);
     }
- 
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day13.txt"));
         System.out.println("Part 1: " + new Day13().summariseAllNotes(data));

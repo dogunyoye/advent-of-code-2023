@@ -9,25 +9,28 @@
   <version>0.1</version>
   <name>aoc2023</name>
   <url>https://github.com/dogunyoye/advent-of-code-2023</url>
+  <description>Advent of Code 2023 solutions in Java.</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.release>21</maven.compiler.release>
     <java.version>21</java.version>
+    <junit.version>4.13.2</junit.version>
+    <jgrapht.version>1.5.2</jgrapht.version>
+    <exec-maven-plugin.version>3.3.0</exec-maven-plugin.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.jgrapht</groupId>
       <artifactId>jgrapht-core</artifactId>
-      <version>1.5.2</version>
+      <version>${jgrapht.version}</version>
     </dependency>
   </dependencies>
 
@@ -44,7 +47,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.11.0</version>
+          <version>3.13.0</version>
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
@@ -62,7 +65,18 @@
           <artifactId>maven-deploy-plugin</artifactId>
           <version>3.1.1</version>
         </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>${exec-maven-plugin.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
   </build>
 </project>

@@ -10,20 +10,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/** Advent of Code 2023, Day 10. */
 public class Day10 {
 
     // | - L J 7 F
 
-    private static Map<Character, List<Character>> validNorthAdjacentNodes;
-    private static Map<Character, List<Character>> validEastAdjacentNodes;
-    private static Map<Character, List<Character>> validSouthAdjacentNodes;
-    private static Map<Character, List<Character>> validWestAdjacentNodes;
+    private static final Map<Character, List<Character>> validNorthAdjacentNodes = new HashMap<>();
+    private static final Map<Character, List<Character>> validEastAdjacentNodes = new HashMap<>();
+    private static final Map<Character, List<Character>> validSouthAdjacentNodes = new HashMap<>();
+    private static final Map<Character, List<Character>> validWestAdjacentNodes = new HashMap<>();
 
     static {
-        validNorthAdjacentNodes = new HashMap<>();
-        validEastAdjacentNodes = new HashMap<>();
-        validSouthAdjacentNodes = new HashMap<>();
-        validWestAdjacentNodes = new HashMap<>();
 
         validNorthAdjacentNodes.put('|', List.of('|', '7', 'F'));
         validNorthAdjacentNodes.put('L', List.of('|', '7', 'F'));
@@ -199,11 +196,11 @@ public class Day10 {
         int j = length - 1;
         for (int i = 0; i < length; i++) {
             area += (xs.get(j) + xs.get(i)) * (ys.get(j) - ys.get(i));
-                
+
             // j is previous vertex to i
-            j = i; 
+            j = i;
         }
-        
+
         // Return absolute value
         return Math.abs(area) / 2;
     }
@@ -241,7 +238,7 @@ public class Day10 {
         // Pick's Theorem - https://en.wikipedia.org/wiki/Pick%27s_theorem
         return (shoeLaceFormula(corners) + 1) - (boundary.size() / 2);
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day10.txt"));
         System.out.println("Part 1: " + new Day10().findStepsToTheFurthestPosition(data));

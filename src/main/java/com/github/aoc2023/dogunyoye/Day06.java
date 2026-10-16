@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.LongStream;
 
+/** Advent of Code 2023, Day 6. */
 public class Day06 {
 
     private record Race(long time, long recordDistance) { }
@@ -38,7 +39,7 @@ public class Day06 {
         return races;
     }
 
-    private static Long findRecordBreakers(Race race) {
+    private static long findRecordBreakers(Race race) {
         final long time = race.time();
         final long distance = race.recordDistance();
 
@@ -121,15 +122,15 @@ public class Day06 {
         }
 
         final long a = 1;
-        final long b = -Long.parseLong(timeString);;
-        final long c = Long.parseLong(distanceString);;
+        final long b = -Long.parseLong(timeString);
+        final long c = Long.parseLong(distanceString);
 
         final double x0 = (-b + Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
         final double x1 = (-b - Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
 
         return ((long)(Math.floor(x0) - Math.ceil(x1)) + 1);
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day06.txt"));
         System.out.println("Part 1: " + new Day06().calculateMarginOfError(data));

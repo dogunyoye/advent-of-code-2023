@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+/** Advent of Code 2023, Day 8. */
 public class Day08 {
 
     private record Pair<K, V>(K left, V right) { }
@@ -78,12 +79,12 @@ public class Day08 {
                 .filter((entry) -> entry.getKey().endsWith("A"))
                 .map((entry) -> entry.getKey())
                 .toList();
-        
+
         final Map<String, String> locationMap = new HashMap<>();
         final List<Long> values = new ArrayList<>();
 
         for (final String s : nodes) {
-            locationMap.put(s, new String(s));
+            locationMap.put(s, s);
         }
 
         while(!locationMap.isEmpty()) {
@@ -112,7 +113,7 @@ public class Day08 {
 
         return lcm(values);
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day08.txt"));
         System.out.println("Part 1: " + new Day08().findNumberOfStepsToEnd(data));

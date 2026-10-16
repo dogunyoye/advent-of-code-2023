@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/** Advent of Code 2023, Day 12. */
 public class Day12 {
 
     private record ConditionRecord(String record, int[] sequence, String regex) { }
@@ -56,7 +57,7 @@ public class Day12 {
 
     private static int recurseCombination(ConditionRecord cr, List<Integer> temp, int[] data, int start, int end, int index, int n) {
         if (index == n) {
-            final StringBuilder sb = new StringBuilder(new String(cr.record));
+            final StringBuilder sb = new StringBuilder(cr.record);
             for (final int idx : temp.reversed()) {
                 sb.setCharAt(idx, '#');
             }
@@ -121,9 +122,9 @@ public class Day12 {
     /**
      * Optimised solution which recursively builds combinations, bailing early if the combination
      * breaks the ordering constraint.
-     * 
+     *
      * `memo` is used to reduce the amount of duplicate work whilst walking the recursion tree
-     * 
+     *
      * Solution inspired from: https://www.reddit.com/r/adventofcode/comments/18hg99r/2023_day_12_simple_tutorial_with_memoization/
      */
     private static long findValidCombinationsOptimised(String record, int[] damaged, Map<State, Long> memo, int i) {
@@ -132,7 +133,7 @@ public class Day12 {
                 return 0;
             }
 
-            return 1; 
+            return 1;
         }
 
         for (; i < record.length(); i++) {
@@ -180,7 +181,7 @@ public class Day12 {
 
         return sum;
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day12.txt"));
         System.out.println("Part 1: " + new Day12().sumAllValidArrangements(data));

@@ -14,6 +14,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 
+/** Advent of Code 2023, Day 23. */
 public class Day23 {
 
     private enum Direction {
@@ -23,7 +24,7 @@ public class Day23 {
         WEST
     }
 
-    private class Position { 
+    private class Position {
         private final int i;
         private final int j;
         private Direction direction;
@@ -178,7 +179,7 @@ public class Day23 {
                     i = c.i;
                     j = c.j - 1;
                     break;
-                
+
                 default:
                     throw new RuntimeException("Unknown direction: " + d);
             }
@@ -250,16 +251,16 @@ public class Day23 {
 
     /**
      * Recursive DFS
-     * 
+     *
      * https://en.wikipedia.org/wiki/Depth-first_search#Pseudocode
      * https://thealgorists.com/Algo/AllPathsBetweenTwoNodes
-     * 
+     *
      * Very simple - this is used to find all paths (from start to end)
      * We add the current node to `visited` before the recursive call (to prevent any cycles)
      * and remove it after the recursive call so other branches can go through that position.
      *
      * The `distances` list is populated when we encounter a path that reaches the end
-     * 
+     *
      * The maximum in this list will be our answer.
      */
     private void dfs(Position current, Position end,
@@ -321,7 +322,7 @@ public class Day23 {
      *
      * The resulting map is effectively a graph of connected nodes, heavily pruned from the
      * original map
-     * 
+     *
      * To gather the connected nodes between each point of interest, I iterative DFS using
      * a point of interest as the root and any other points of interest the DFS runs into
      * as the destination.
@@ -411,19 +412,19 @@ public class Day23 {
 
     /**
      * Part 2 effectively turns the exercise into a "longest path problem"
-     * 
+     *
      * https://en.wikipedia.org/wiki/Longest_path_problem
-     * 
+     *
      * There is no algorithm to solve this efficiently (in polynomial time)
      * so we need to look for ways to significantly cut down the search space
      *
      * The graph features many "long corridors" and single routes, which fewer
      * "junctions" (decision points).
-     * 
+     *
      * We will use this to our advantage to collect the straight paths and map
      * them as distances to their nearest junctions.
-     * 
-     * Inspiration taken from: https://todd.ginsberg.com/post/advent-of-code/2023/day23/ 
+     *
+     * Inspiration taken from: https://todd.ginsberg.com/post/advent-of-code/2023/day23/
      */
     public int findMaxStepsToDestinationWithNoSlopes(List<String> data) {
         final char[][] map = buildMap(data);

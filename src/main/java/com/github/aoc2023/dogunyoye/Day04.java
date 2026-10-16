@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/** Advent of Code 2023, Day 4. */
 public class Day04 {
 
     private record ScratchCard(int cardNumber, Set<Integer> winningNumbers, Set<Integer> myNumbers) { }
@@ -102,7 +103,7 @@ public class Day04 {
 
         return result;
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> cards = Files.readAllLines(Path.of("src/main/resources/Day04.txt"));
         System.out.println("Part 1: " + new Day04().calculatePoints(cards));

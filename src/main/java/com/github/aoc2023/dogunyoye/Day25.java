@@ -19,6 +19,7 @@ import org.jgrapht.alg.StoerWagnerMinimumCut;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
+/** Advent of Code 2023, Day 25. */
 public class Day25 {
 
     private Map<String, Set<String>> buildConnectedMap(List<String> data) {
@@ -86,7 +87,7 @@ public class Day25 {
         connected
             .entrySet()
             .forEach((e) -> {
-                copy.put(new String(e.getKey()), new HashSet<>(e.getValue().stream().toList()));
+                copy.put(e.getKey(), new HashSet<>(e.getValue().stream().toList()));
             });
 
         return copy;
@@ -173,7 +174,7 @@ public class Day25 {
             verticesGroups.remove(to);
 
             edges.removeIf((e) -> (e.get(0).equals(to) && e.get(1).equals(from)) || (e.get(0).equals(from) && e.get(1).equals(to)));
-            
+
             edges
                 .forEach((e) -> {
                     if (e.get(0).equals(to)) {
@@ -272,7 +273,7 @@ public class Day25 {
             }
         }
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day25.txt"));
         System.out.println("Part 1: " + new Day25().findProductOfDisconnectedComponents(data));

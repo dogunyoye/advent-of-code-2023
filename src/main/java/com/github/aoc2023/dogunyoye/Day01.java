@@ -7,22 +7,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/** Advent of Code 2023, Day 1. */
 public class Day01 {
 
-    private static Map<String, Character> map;
-
-    static {
-        map = new HashMap<>();
-        map.put("one", '1');
-        map.put("two", '2');
-        map.put("three", '3');
-        map.put("four", '4');
-        map.put("five", '5');
-        map.put("six", '6');
-        map.put("seven", '7');
-        map.put("eight", '8');
-        map.put("nine", '9');
-    }
+    private static final Map<String, Character> WORD_TO_DIGIT = Map.of(
+        "one", '1',
+        "two", '2',
+        "three", '3',
+        "four", '4',
+        "five", '5',
+        "six", '6',
+        "seven", '7',
+        "eight", '8',
+        "nine", '9'
+    );
 
     private static String normalisedValue(String line) {
         final Map<Integer, Character> indexToValueMap = new HashMap<>();
@@ -34,7 +32,7 @@ public class Day01 {
             }
         }
 
-        map.entrySet().forEach((e) -> {
+        WORD_TO_DIGIT.entrySet().forEach((e) -> {
             int index = line.indexOf(e.getKey());
             while (index != -1) {
                 indexToValueMap.put(index, e.getValue());
@@ -62,7 +60,7 @@ public class Day01 {
             .mapToInt(digits -> Integer.parseInt(digits))
             .sum();
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> documentLines = Files.readAllLines(Path.of("src/main/resources/Day01.txt"));
         System.out.println("Part 1: " + new Day01().sumOfAllCalibrationValues(documentLines));

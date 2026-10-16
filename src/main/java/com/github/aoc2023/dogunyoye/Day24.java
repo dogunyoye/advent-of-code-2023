@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/** Advent of Code 2023, Day 24. */
 public class Day24 {
 
     private record Position(long x, long y, long z) { }
@@ -93,7 +94,7 @@ public class Day24 {
 
         final BigInteger x = (b1.multiply(c0).subtract(b0.multiply(c1))).divide(d);
         final BigInteger y = (c1.multiply(a0).subtract(c0.multiply(a1))).divide(d);
-    
+
         return new long[]{x.longValue(), y.longValue()};
     }
 
@@ -141,7 +142,7 @@ public class Day24 {
 
             xy.add(intersection[0]);
             xy.add(intersection[1]);
-        } 
+        }
 
         return xy.size() == 2 ? xy : null;
     }

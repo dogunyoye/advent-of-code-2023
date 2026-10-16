@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/** Advent of Code 2023, Day 9. */
 public class Day09 {
 
     private static int processSequence(List<Integer> sequence, boolean forwards) {
@@ -40,7 +41,7 @@ public class Day09 {
         final List<List<Integer>> sequences = getSequences(data);
         return sequences.stream().map((seq) -> Day09.processSequence(seq, forwards)).mapToInt(n -> n).sum();
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day09.txt"));
         System.out.println("Part 1: " + new Day09().calculateSumOfExrapolatedValues(data, true));

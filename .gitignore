@@ -1,4 +1,8 @@
+# Build output
 target/
+classes/
+
+# Maven release artefacts
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -11,9 +15,20 @@ buildNumber.properties
 .mvn/wrapper/maven-wrapper.jar
 
 # Eclipse m2e generated files
-# Eclipse Core
 .project
-# JDT-specific (Eclipse Java Development Tools)
 .classpath
-# aoc puzzle inputs
-src/main/resources/
+.settings/
+
+# IntelliJ / VS Code
+.idea/
+*.iml
+.vscode/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Advent of Code puzzle inputs (personal, not committed).
+# The whole resources dir is ignored upstream; keep the pattern narrow
+# so build resources can still be added later if needed.
+src/main/resources/Day*.txt

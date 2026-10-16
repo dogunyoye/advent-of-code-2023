@@ -1,0 +1,11 @@
+# Enforce LF line endings on checkout for consistency (Windows/WSL safe)
+* text=auto eol=lf
+
+*.java text diff=java
+*.xml text
+*.txt text
+*.md text
+*.properties text
+
+# Keep puzzle inputs / binaries as-is where needed
+*.jar binary

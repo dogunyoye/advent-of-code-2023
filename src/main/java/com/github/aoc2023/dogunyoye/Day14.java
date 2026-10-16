@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
+/** Advent of Code 2023, Day 14. */
 public class Day14 {
 
     private static final Consumer<char[][]> MOVE_NORTH =
@@ -21,12 +22,12 @@ public class Day14 {
                         while(canMoveNorth(ii, j, map)) {
                             map[ii][j] = '.';
                             map[--ii][j] = 'O';
-                        } 
+                        }
                     }
                 }
             }
         };
-    
+
     private static final Consumer<char[][]> MOVE_WEST =
         (map) -> {
             for (int i = 0; i < map.length; i++) {
@@ -36,7 +37,7 @@ public class Day14 {
                         while(canMoveWest(i, jj, map)) {
                             map[i][jj] = '.';
                             map[i][--jj] = 'O';
-                        } 
+                        }
                     }
                 }
             }
@@ -51,7 +52,7 @@ public class Day14 {
                         while(canMoveSouth(ii, j, map)) {
                             map[ii][j] = '.';
                             map[++ii][j] = 'O';
-                        } 
+                        }
                     }
                 }
             }
@@ -66,7 +67,7 @@ public class Day14 {
                         while(canMoveEast(i, jj, map)) {
                             map[i][jj] = '.';
                             map[i][++jj] = 'O';
-                        } 
+                        }
                     }
                 }
             }
@@ -141,7 +142,7 @@ public class Day14 {
     public int calculateTotalLoad(List<String> data) {
         final char[][] map = buildMap(data);
         tiltRocks(map, MOVE_NORTH);
- 
+
         return calculateSumOfRocks(map);
     }
 
@@ -175,8 +176,8 @@ public class Day14 {
         }
 
         return sumsSet.stream().mapToInt((n) -> n).toArray()[1];
-    } 
-    
+    }
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day14.txt"));
         System.out.println("Part 1: " + new Day14().calculateTotalLoad(data));

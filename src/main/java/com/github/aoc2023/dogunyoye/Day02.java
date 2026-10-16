@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Advent of Code 2023, Day 2. */
 public class Day02 {
 
     private record Round (int blueCubes, int redCubes, int greenCubes) { }
@@ -38,7 +39,7 @@ public class Day02 {
                 final String[] cubeParts = cube.split(" ");
                 final int numberOfCubes = Integer.parseInt(cubeParts[0]);
                 final String cubeColour = cubeParts[1];
-                
+
                 switch (cubeColour) {
                     case "blue":
                         blueCubes = numberOfCubes;

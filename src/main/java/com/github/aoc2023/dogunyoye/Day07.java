@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+/** Advent of Code 2023, Day 7. */
 public class Day07 {
 
     enum HandType {
@@ -155,7 +156,7 @@ public class Day07 {
 
             final List<Entry<Character, Integer>> pairs = entries.stream()
                 .filter((entry) -> entry.getValue() == 2).toList();
-            
+
             final int maxIdx = Math.max(order.indexOf(pairs.get(0).getKey()), order.indexOf(pairs.get(1).getKey()));
 
             return new Pair<HandType, Character>(HandType.TWO_PAIR, order.get(maxIdx));
@@ -166,7 +167,7 @@ public class Day07 {
     }
 
     private List<Hand> createHands(List<String> data, List<Character> order) {
-        return 
+        return
             data.stream()
                 .map((line) -> {
                     final String[] parts = line.split(" ");
@@ -208,7 +209,7 @@ public class Day07 {
 
         return result;
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day07.txt"));
         System.out.println("Part 1: " + new Day07().calculateTotalWinnings(data));

@@ -15,6 +15,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Map.Entry;
 
+/** Advent of Code 2023, Day 20. */
 public class Day20 {
 
     private record Pulse(String sender, BitSet pulse) { }
@@ -244,7 +245,7 @@ public class Day20 {
         PulseSendResult sendPulse() {
             return new PulseSendResult(0, 0, new ArrayDeque<>());
         }
-        
+
     }
 
     private Map<String, Module> buildModules(List<String> data) {
@@ -406,7 +407,7 @@ public class Day20 {
         final Map<String, Module> modules = buildModules(data);
         return performButtonPushesUntilRX(modules);
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day20.txt"));
         System.out.println("Part 1: " + new Day20().findProductOfLowAndHighPulsesAfter1000ButtonPushes(data));

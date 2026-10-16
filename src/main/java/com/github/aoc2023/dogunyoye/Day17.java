@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
+/** Advent of Code 2023, Day 17. */
 public class Day17 {
 
     private enum Direction {
@@ -23,7 +24,7 @@ public class Day17 {
         @Override
         public int compare(Node o1, Node o2) {
             return Integer.compare(o1.cost, o2.cost);
-        }   
+        }
     }
 
     private class Node {
@@ -175,7 +176,7 @@ public class Day17 {
                 }
 
                 final Node neighbour = new Node(x, y, d, steps);
-                neighbours.add(neighbour); 
+                neighbours.add(neighbour);
             }
         }
 
@@ -215,14 +216,14 @@ public class Day17 {
 
             if (currentCost <= costSoFar.get(current)) {
                 for (final Node n : getNeighbours(current, map, isPart2)) {
-    
+
                     final int w = map[n.x][n.y];
                     final int newCost = currentCost + w;
 
                     if (!costSoFar.containsKey(n) || newCost < costSoFar.get(n)) {
                         n.setCost(newCost);
                         costSoFar.put(n, newCost);
-    
+
                         frontier.add(n);
                     }
                 }
@@ -237,7 +238,7 @@ public class Day17 {
         final Node start = new Node(0, 0, null, 1);
         final Node end = new Node(map.length - 1, map[0].length - 1, null, 1);
 
-        return djikstra(map, start, end, isPart2); 
+        return djikstra(map, start, end, isPart2);
     }
 
     public long findMinimalHeatLossOfCrucible(List<String> data) {
@@ -247,7 +248,7 @@ public class Day17 {
     public long findMinimalHeatLossOfUltraCrucible(List<String> data) {
         return findMinimalHeatLoss(data, true);
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day17.txt"));
         System.out.println("Part 1: " + new Day17().findMinimalHeatLossOfCrucible(data));
