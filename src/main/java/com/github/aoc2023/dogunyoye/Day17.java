@@ -209,7 +209,12 @@ public class Day17 {
             final Node current = frontier.remove();
 
             if (current.x == end.x && current.y == end.y) {
-                return current.cost;
+                // ultra crucibles must travel at least 4 blocks in a straight
+                // line before stopping - an arrival on a shorter run is not
+                // a valid solution, so keep searching instead of returning
+                if (!isPart2 || current.steps >= 4) {
+                    return current.cost;
+                }
             }
 
             final int currentCost = current.cost;

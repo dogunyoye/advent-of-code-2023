@@ -11,6 +11,8 @@ import java.util.stream.LongStream;
 /** Advent of Code 2023, Day 6. */
 public class Day06 {
 
+    private static final double EPSILON = 1e-9;
+
     private record Race(long time, long recordDistance) { }
 
     private Race[] createRaces(List<String> data) {
@@ -122,13 +124,36 @@ public class Day06 {
         }
 
         final long a = 1;
-        final long b = -Long.parseLong(timeString);
-        final long c = Long.parseLong(distanceString);
+        final long time = Long.parseLong(timeString);
+        final long record = Long.parseLong(distanceString);
 
-        final double x0 = (-b + Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
-        final double x1 = (-b - Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
+        // Exact in long arithmetic for realistic inputs; a non-positive
+        // discriminant means the record can never be beaten (0 ways),
+        // which the old double-only version answered with NaN garbage.
+        final long discriminant = time * time - 4 * a * record;
+        if (discriminant <= 0) {
+            return 0;
+        }
 
-        return ((long)(Math.floor(x0) - Math.ceil(x1)) + 1);
+        final double sqrtDiscriminant = Math.sqrt(discriminant);
+        final double lowRoot = (time - sqrtDiscriminant) / (2 * a);
+        final double highRoot = (time + sqrtDiscriminant) / (2 * a);
+
+        // Only strict wins count, so shrink past exact ties; the epsilon
+        // also absorbs floating-point error around near-integer roots.
+        long low = (long) Math.ceil(lowRoot + EPSILON);
+        long high = (long) Math.floor(highRoot - EPSILON);
+
+        // Correct any residual floating-point error at the boundaries
+        // by checking the true integer inequality s * (time - s) > record.
+        while (low <= high && low * (time - low) <= record) {
+            ++low;
+        }
+        while (high >= low && high * (time - high) <= record) {
+            --high;
+        }
+
+        return Math.max(0, high - low + 1);
     }
 
     public static void main(String[] args) throws IOException {

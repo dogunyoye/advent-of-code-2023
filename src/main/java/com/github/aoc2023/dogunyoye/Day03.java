@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /** Advent of Code 2023, Day 3. */
@@ -57,11 +58,15 @@ public class Day03 {
         return new EngineSchematic(mapLength, mapDepth, engineSchematic, symbolPositions);
     }
 
-    private static int completeNumber(EngineSchematic engineSchematic, Position pos, Set<Position> mapped) {
+    // Returns the full number containing pos, or null if that number was
+    // already counted. Null (not 0) marks "already counted" so that a
+    // literal zero is still recognised as a distinct adjacent number.
+    private static Integer completeNumber(EngineSchematic engineSchematic, Position pos, Set<Position> mapped) {
 
         if(mapped.contains(pos)) {
-            return 0;
+            return null;
         }
+        mapped.add(pos);
 
         final char[][] schematic = engineSchematic.schematic();
         final int mapLength = engineSchematic.length();
@@ -98,6 +103,7 @@ public class Day03 {
             sum += neighbours.stream()
                     .filter(nPos -> Character.isDigit(engineSchematic.schematic()[nPos.i()][nPos.j()]))
                     .map(pos -> Day03.completeNumber(engineSchematic, pos, mapped))
+                    .filter(Objects::nonNull)
                     .mapToInt(number -> number)
                     .sum();
         }
@@ -118,7 +124,7 @@ public class Day03 {
                 final List<Integer> numbers = neighbours.stream()
                         .filter(nPos -> Character.isDigit(engineSchematic.schematic()[nPos.i()][nPos.j()]))
                         .map(pos -> Day03.completeNumber(engineSchematic, pos, mapped))
-                        .filter(number -> number != 0)
+                        .filter(Objects::nonNull)
                         .toList();
 
                 if (numbers.size() == 2) {

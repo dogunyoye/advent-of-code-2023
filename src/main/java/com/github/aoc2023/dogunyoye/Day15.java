@@ -16,7 +16,7 @@ public class Day15 {
         REMOVE
     }
 
-    private class Lens {
+    private static class Lens {
         private final String label;
         private final int focalLength;
         private final Operation op;
@@ -42,21 +42,21 @@ public class Day15 {
         // For the purposes of this exercise, lens equality only accounts for the label
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + getEnclosingInstance().hashCode();
-            result = prime * result + ((label == null) ? 0 : label.hashCode());
-            return result;
+            return label == null ? 0 : label.hashCode();
         }
 
         @Override
         public boolean equals(Object obj) {
-            Lens other = (Lens) obj;
-            return this.label.equals(other.label);
-        }
-
-        private Day15 getEnclosingInstance() {
-            return Day15.this;
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof Lens other)) {
+                return false;
+            }
+            if (label == null) {
+                return other.label == null;
+            }
+            return label.equals(other.label);
         }
 
         @Override

@@ -17,13 +17,11 @@ import java.util.stream.Collectors;
 /** Advent of Code 2023, Day 13. */
 public class Day13 {
 
-    private record Note(int id, List<String> rows, List<String> columns, boolean cache) { }
+    private record Note(int id, List<String> rows, List<String> columns) { }
 
     private record Replacement(int idx, String replacement) { }
 
-    private static final Map<Integer, String> REFLECTION_POINTS = new HashMap<>();
-
-    private Note createNoteFromRows(int id, List<String> data, boolean cacheValue) {
+    private Note createNoteFromRows(int id, List<String> data) {
         final int lineLength = data.get(0).length();
         final List<String> columns = new ArrayList<>();
         for (int i = 0; i < lineLength; i++) {
@@ -34,10 +32,10 @@ public class Day13 {
             columns.add(column);
         }
 
-        return new Note(id, new ArrayList<>(data), columns, cacheValue);
+        return new Note(id, new ArrayList<>(data), columns);
     }
 
-    private List<Note> createNotes(List<String> data, boolean cacheValue) {
+    private List<Note> createNotes(List<String> data) {
         final List<Note> notes = new ArrayList<>();
 
         // https://stackoverflow.com/a/62670286/2981152
@@ -51,7 +49,7 @@ public class Day13 {
 
         int id = 0;
         for (final List<String> rows : n) {
-            notes.add(createNoteFromRows(id, rows, cacheValue));
+            notes.add(createNoteFromRows(id, rows));
             ++id;
         }
 
@@ -123,19 +121,15 @@ public class Day13 {
         return candidatesMap;
     }
 
-    private static int checkSymmetry(Note n, List<String> note, boolean isVertical) {
-        final String value = REFLECTION_POINTS.get(n.id());
+    private static int checkSymmetry(List<String> note, String skipReflectionLine, boolean isVertical) {
         for (int i = 0; i < note.size() - 1; i++) {
             final String current = note.get(i);
             final String next = note.get(i + 1);
             final String reflectionLine = isVertical ? "x=" + i : "y=" + i;
 
-            if (value != null) {
-                // for part 2, skip this reflection line
-                // if it is the previously kn
-                if (value.equals(reflectionLine)) {
-                    continue;
-                }
+            if (reflectionLine.equals(skipReflectionLine)) {
+                // skip the original reflection line when checking a smudged note
+                continue;
             }
 
             if (current.equals(next)) {
@@ -156,9 +150,6 @@ public class Day13 {
                     }
 
                     if (isReflectionPoint) {
-                        if (n.cache()) {
-                            REFLECTION_POINTS.put(n.id(), reflectionLine);
-                        }
                         return i + 1;
                     }
             }
@@ -167,24 +158,37 @@ public class Day13 {
         return 0;
     }
 
-    private static int checkVerticalSymmetry(Note note) {
-        return checkSymmetry(note, note.columns(), true);
+    private static int checkVerticalSymmetry(Note note, String skipReflectionLine) {
+        return checkSymmetry(note.columns(), skipReflectionLine, true);
     }
 
-    private static int checkHorizontalSymmetry(Note note) {
-        return checkSymmetry(note, note.rows(), false);
+    private static int checkHorizontalSymmetry(Note note, String skipReflectionLine) {
+        return checkSymmetry(note.rows(), skipReflectionLine, false);
     }
 
     public long summariseAllNotes(List<String> data) {
-        final List<Note> notes = createNotes(data, true);
-        final long leftColumns = notes.stream().mapToInt(Day13::checkVerticalSymmetry).sum();
-        final long rowsAbove = notes.stream().mapToInt(Day13::checkHorizontalSymmetry).sum();
+        final List<Note> notes = createNotes(data);
+        final long leftColumns = notes.stream().mapToInt(note -> checkVerticalSymmetry(note, null)).sum();
+        final long rowsAbove = notes.stream().mapToInt(note -> checkHorizontalSymmetry(note, null)).sum();
 
         return leftColumns + (100 * rowsAbove);
     }
 
     public long summariseAllNotesPart2(List<String> data) {
-        final List<Note> notes = createNotes(data, true);
+        final List<Note> notes = createNotes(data);
+        // Each note's original reflection line, so smudged checks can skip it.
+        // Computed here explicitly instead of relying on part 1 having run first.
+        final Map<Integer, String> originalReflectionLines = new HashMap<>();
+        for (final Note note : notes) {
+            final int leftColumns = checkVerticalSymmetry(note, null);
+            final int rowsAbove = checkHorizontalSymmetry(note, null);
+            if (leftColumns > 0) {
+                originalReflectionLines.put(note.id(), "x=" + (leftColumns - 1));
+            }
+            if (rowsAbove > 0) {
+                originalReflectionLines.put(note.id(), "y=" + (rowsAbove - 1));
+            }
+        }
         final Map<Note, List<Replacement>> rowReplacements = findCandidates(notes, true);
         final Map<Note, List<Replacement>> columnReplacements = findCandidates(notes, false);
 
@@ -201,9 +205,10 @@ public class Day13 {
                 final List<String> newRow = new ArrayList<String>(List.copyOf(note.rows()));
                 newRow.set(r.idx(), r.replacement());
 
-                final Note newNote = createNoteFromRows(note.id(), newRow, false);
-                int l = checkVerticalSymmetry(newNote);
-                int a = checkHorizontalSymmetry(newNote);
+                final Note newNote = createNoteFromRows(note.id(), newRow);
+                final String skipReflectionLine = originalReflectionLines.get(note.id());
+                int l = checkVerticalSymmetry(newNote, skipReflectionLine);
+                int a = checkHorizontalSymmetry(newNote, skipReflectionLine);
 
                 if (l > 0 && a > 0) {
                     throw new RuntimeException("Multiple reflection points");
@@ -241,9 +246,10 @@ public class Day13 {
                     newRow.set(i, sb.toString());
                 }
 
-                final Note newNote = createNoteFromRows(note.id(), newRow, false);
-                int l = checkVerticalSymmetry(newNote);
-                int a = checkHorizontalSymmetry(newNote);
+                final Note newNote = createNoteFromRows(note.id(), newRow);
+                final String skipReflectionLine = originalReflectionLines.get(note.id());
+                int l = checkVerticalSymmetry(newNote, skipReflectionLine);
+                int a = checkHorizontalSymmetry(newNote, skipReflectionLine);
 
                 if (l > 0 && a > 0) {
                     throw new RuntimeException("Multiple reflection points");

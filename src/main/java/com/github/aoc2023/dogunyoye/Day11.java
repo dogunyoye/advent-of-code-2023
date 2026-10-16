@@ -106,31 +106,33 @@ public class Day11 {
         return columnInsertionIdxs;
     }
 
+    // Works on a copy: callers can safely reuse their list for both parts.
     private char[][] buildMap(List<String> data) {
-        final List<Integer> rowInsertionIdxs = getRowInsertionIdxs(data);
-        final List<Integer> columnInsertionIdxs = getColumnInsertionIdxs(data);
-        final int oldLength = data.get(0).length();
+        final List<String> expanded = new ArrayList<>(data);
+        final List<Integer> rowInsertionIdxs = getRowInsertionIdxs(expanded);
+        final List<Integer> columnInsertionIdxs = getColumnInsertionIdxs(expanded);
+        final int oldLength = expanded.get(0).length();
 
         for (final int idx : rowInsertionIdxs) {
-            data.add(idx, ".".repeat(oldLength));
+            expanded.add(idx, ".".repeat(oldLength));
         }
 
-        for (int i = 0; i < data.size(); i++) {
-            final StringBuilder sb = new StringBuilder(data.get(i));
+        for (int i = 0; i < expanded.size(); i++) {
+            final StringBuilder sb = new StringBuilder(expanded.get(i));
             for (final int idx : columnInsertionIdxs) {
                 sb.insert(idx, '.');
             }
-            data.set(i, sb.toString());
+            expanded.set(i, sb.toString());
         }
 
-        final int mapLength = data.get(0).length();
-        final int mapDepth = data.size();
+        final int mapLength = expanded.get(0).length();
+        final int mapDepth = expanded.size();
 
         final char[][] map = new char[mapDepth][mapLength];
 
         for (int i = 0; i < mapDepth; i++) {
             for (int j = 0; j < mapLength; j++) {
-                map[i][j] = data.get(i).charAt(j);
+                map[i][j] = expanded.get(i).charAt(j);
             }
         }
 
@@ -175,8 +177,8 @@ public class Day11 {
      */
     public long findSumOfShortestLengths(List<String> data) {
         final char[][] map = buildMap(data);
-        final int mapDepth = data.size();
-        final int mapLength = data.get(0).length();
+        final int mapDepth = map.length;
+        final int mapLength = map[0].length;
         final List<Position> galaxyPositions = getGalaxyPositions(map, mapLength, mapDepth);
 
         long sum = 0;
@@ -242,8 +244,7 @@ public class Day11 {
 
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day11.txt"));
-        final List<String> data2 = Files.readAllLines(Path.of("src/main/resources/Day11.txt"));
         System.out.println("Part 1: " + new Day11().findSumOfShortestLengths(data));
-        System.out.println("Part 2: " + new Day11().findSumOfShortestLengthsPart2(data2, 1_000_000L));
+        System.out.println("Part 2: " + new Day11().findSumOfShortestLengthsPart2(data, 1_000_000L));
     }
 }
