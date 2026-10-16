@@ -3,11 +3,11 @@ package com.github.aoc2023.dogunyoye;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /** Advent of Code 2023, Day 14. */
@@ -119,11 +119,11 @@ public class Day14 {
     }
 
     private String mapToString(char[][] map) {
-        String result = "";
-        for (int i = 0; i < map.length; i++) {
-            result += Arrays.toString(map[i]);
+        final StringBuilder result = new StringBuilder();
+        for (final char[] row : map) {
+            result.append(Arrays.toString(row));
         }
-        return result;
+        return result.toString();
     }
 
     private int calculateSumOfRocks(char[][] map) {
@@ -146,36 +146,36 @@ public class Day14 {
         return calculateSumOfRocks(map);
     }
 
+    private static final long TOTAL_CYCLES = 1_000_000_000L;
+
     public int calculateTotalLoadAfter1000000000Cycles(List<String> data) {
         final char[][] map = buildMap(data);
-        final Set<String> stateSet = new HashSet<>();
-        final Set<Integer> sumsSet = new LinkedHashSet<>();
+        // Cycle number (1-based) at which each platform state was first seen.
+        final Map<String, Integer> firstSeenAt = new HashMap<>();
+        // Total load recorded after each completed cycle, in order.
+        final List<Integer> loads = new ArrayList<>();
 
         int cycles = 0;
-        int interval = 0;
-        boolean found = false;
-
-        while(cycles != 1000000000) {
-            ++cycles;
-
+        while (cycles < TOTAL_CYCLES) {
             tiltRocks(map, MOVE_NORTH);
             tiltRocks(map, MOVE_WEST);
             tiltRocks(map, MOVE_SOUTH);
             tiltRocks(map, MOVE_EAST);
+            ++cycles;
 
-            if (!stateSet.add(mapToString(map)) && !found) {
-                interval = cycles;
-                found = true;
-            }
+            final String state = mapToString(map);
+            final Integer firstSeen = firstSeenAt.putIfAbsent(state, cycles);
+            loads.add(calculateSumOfRocks(map));
 
-            if (found && (cycles % interval == 0)) {
-                if (!sumsSet.add(calculateSumOfRocks(map))) {
-                    break;
-                }
+            if (firstSeen != null) {
+                // States firstSeen..cycles-1 repeat with this period.
+                final int period = cycles - firstSeen;
+                final int target = (firstSeen - 1) + (int) ((TOTAL_CYCLES - firstSeen) % period);
+                return loads.get(target);
             }
         }
 
-        return sumsSet.stream().mapToInt((n) -> n).toArray()[1];
+        return loads.get(loads.size() - 1);
     }
 
     public static void main(String[] args) throws IOException {
