@@ -3,8 +3,10 @@ package com.github.aoc2023.dogunyoye;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -27,27 +29,15 @@ public class Day16 {
         return beam.i < 0 || beam.i >= mapDepth || beam.j < 0 || beam.j >= mapLength;
     }
 
-    private static boolean hasBeamsInBounds(List<Beam> beams, char[][] map) {
-        for (final Beam beam : beams) {
-            if (!isBeamOutOfBounds(beam, map)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private static class Beam {
         private int i;
         private int j;
         private Direction direction;
-        private boolean outOfBounds;
 
         private Beam(int i, int j, Direction direction) {
             this.i = i;
             this.j = j;
             this.direction = direction;
-            outOfBounds = false;
         }
 
         private void move() {
@@ -73,7 +63,7 @@ public class Day16 {
 
         @Override
         public String toString() {
-            return "Beam [i=" + i + ", j=" + j + ", direction=" + direction + ", outOfBounds=" + outOfBounds + "]";
+            return "Beam [i=" + i + ", j=" + j + ", direction=" + direction + "]";
         }
     }
 
@@ -91,118 +81,71 @@ public class Day16 {
         return map;
     }
 
+    private record BeamState(int i, int j, Direction direction) { }
+
+    private static Direction reflectSlash(Direction direction) {
+        return switch (direction) {
+            case EAST -> Direction.NORTH;
+            case NORTH -> Direction.EAST;
+            case SOUTH -> Direction.WEST;
+            case WEST -> Direction.SOUTH;
+        };
+    }
+
+    private static Direction reflectBackslash(Direction direction) {
+        return switch (direction) {
+            case EAST -> Direction.SOUTH;
+            case NORTH -> Direction.WEST;
+            case SOUTH -> Direction.EAST;
+            case WEST -> Direction.NORTH;
+        };
+    }
+
     private static int traverseContraption(char[][] map, Beam start) {
-        List<Beam> beams = new ArrayList<>();
-        beams.add(start);
+        final Set<Position> energised = new HashSet<>();
+        // A beam's behaviour is fully determined by its position and direction,
+        // so a repeated state means a loop - terminate that beam. This guarantees
+        // termination and visits every reachable tile exactly once.
+        final Set<BeamState> visited = new HashSet<>();
+        final Deque<Beam> beams = new ArrayDeque<>();
+        beams.push(new Beam(start.i, start.j, start.direction));
 
-        final Set<Position> energised = new LinkedHashSet<>();
-        final Set<Integer> energisedWatch = new LinkedHashSet<>();
-        int counter = 0;
+        while (!beams.isEmpty()) {
+            final Beam beam = beams.pop();
 
-        while (hasBeamsInBounds(beams, map)) {
-            final List<Beam> newBeams = new ArrayList<>();
-
-            for (int i = 0; i < beams.size(); i++) {
-                final Beam beam = beams.get(i);
-                if (isBeamOutOfBounds(beam, map)) {
-                    beam.outOfBounds = true;
-                    continue;
+            while (!isBeamOutOfBounds(beam, map)) {
+                if (!visited.add(new BeamState(beam.i, beam.j, beam.direction))) {
+                    break;
                 }
+                energised.add(new Position(beam.i, beam.j));
 
-                final int currentI = beam.i;
-                final int currentJ = beam.j;
-
-                final Position currentPosition = new Position(currentI, currentJ);
-                energised.add(currentPosition);
-
-                final char value = map[currentI][currentJ];
-                switch(value) {
-                case '.':
-                    break;
-                case '/':
-                    switch(beam.direction) {
-                        case EAST:
-                            beam.direction = Direction.NORTH;
-                            break;
-                        case NORTH:
-                            beam.direction = Direction.EAST;
-                            break;
-                        case SOUTH:
-                            beam.direction = Direction.WEST;
-                            break;
-                        case WEST:
+                final char value = map[beam.i][beam.j];
+                switch (value) {
+                    case '.':
+                        break;
+                    case '/':
+                        beam.direction = reflectSlash(beam.direction);
+                        break;
+                    case '\\':
+                        beam.direction = reflectBackslash(beam.direction);
+                        break;
+                    case '|':
+                        if (beam.direction == Direction.EAST || beam.direction == Direction.WEST) {
+                            beams.push(new Beam(beam.i - 1, beam.j, Direction.NORTH));
                             beam.direction = Direction.SOUTH;
-                            break;
-                        default:
-                            throw new RuntimeException("Invalid direction");
-                    }
-                    break;
-                case '\\':
-                    switch(beam.direction) {
-                        case EAST:
-                            beam.direction = Direction.SOUTH;
-                            break;
-                        case NORTH:
-                            beam.direction = Direction.WEST;
-                            break;
-                        case SOUTH:
+                        }
+                        break;
+                    case '-':
+                        if (beam.direction == Direction.NORTH || beam.direction == Direction.SOUTH) {
+                            beams.push(new Beam(beam.i, beam.j - 1, Direction.WEST));
                             beam.direction = Direction.EAST;
-                            break;
-                        case WEST:
-                            beam.direction = Direction.NORTH;
-                            break;
-                        default:
-                            throw new RuntimeException("Invalid direction");
-                    }
-                    break;
-                case '|':
-                    switch(beam.direction) {
-                        case EAST:
-                        case WEST:
-                            newBeams.add(new Beam(currentI-1, currentJ, Direction.NORTH));
-                            beam.direction = Direction.SOUTH;
-                            break;
-                        case SOUTH:
-                        case NORTH:
-                            break;
-                        default:
-                            throw new RuntimeException("Invalid direction");
-                    }
-                    break;
-                case '-':
-                    switch(beam.direction) {
-                        case EAST:
-                        case WEST:
-                            break;
-                        case SOUTH:
-                        case NORTH:
-                            newBeams.add(new Beam(currentI, currentJ-1, Direction.WEST));
-                            beam.direction = Direction.EAST;
-                            break;
-                        default:
-                            throw new RuntimeException("Invalid direction");
-                    }
-                    break;
-                default:
-                    throw new RuntimeException("Invalid obstacle: " + value);
+                        }
+                        break;
+                    default:
+                        throw new RuntimeException("Invalid obstacle: " + value);
                 }
 
                 beam.move();
-            }
-
-            beams.addAll(newBeams);
-            beams = new ArrayList<Beam>(beams.stream().filter((b) -> !b.outOfBounds).toList());
-
-            // very hacky loop/cycle termination
-            // if I see the same value 5 times in a row, this is our energised count
-            boolean notExists = energisedWatch.add(energised.size());
-            if (!notExists) {
-                ++counter;
-                if (counter == 5) {
-                    return energised.size();
-                }
-            } else {
-                counter = 0;
             }
         }
 
@@ -213,8 +156,6 @@ public class Day16 {
         return traverseContraption(buildMap(data), new Beam(0, 0, Direction.EAST));
     }
 
-    // takes ages
-    // TODO: Optimise heavily
     public int findMaxNumberOfEnergisedTiles(List<String> data) {
         final char[][] map = buildMap(data);
         final List<Beam> beams = new ArrayList<>();
